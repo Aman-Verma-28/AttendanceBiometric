@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .models import UserRegistraion, UserAttendance
+from .models import UserRegistraion, UserAttendance, Item
 from rest_framework.response import Response
 from rest_framework import status
 import datetime
@@ -16,14 +16,14 @@ class EntryView(APIView):
 
             if not token:
                 users = UserAttendance.objects.filter(is_active=True).values(
-                    "user__name", "user__role", "entry"
+                    "user__name", "user__role", "entry", "item__name"
                 )
                 return Response({"users": users}, status=status.HTTP_200_OK)
             else:
                 user = UserRegistraion.objects.get(token=token)
                 user_attendance = UserAttendance.objects.filter(
                     user=user, is_active=True
-                ).values("entry", "exit")
+                ).values("entry", "exit", "item__name")
                 return Response(
                     {"user_attendance": user_attendance}, status=status.HTTP_200_OK
                 )
@@ -35,9 +35,10 @@ class EntryView(APIView):
         try:
             data = request.data
             token = data.get("token")
-
+            item_token = data.get("item_token")
             user = UserRegistraion.objects.get(token=token)
-            user_attendance = UserAttendance.objects.create(user=user, is_active=True)
+            item = Item.objects.get(token=item_token)
+            UserAttendance.objects.create(user=user, item=item, is_active=True)
 
             return Response({"message": "Entry Recorded"}, status=status.HTTP_200_OK)
         except Exception as e:
