@@ -1,38 +1,37 @@
-# AttendanceBiometric
+# AttendanceBiometric - Frontend Only
 
-This project is a simple implementation of a biometric attendance system using the fingerprint sensor.
+This branch contains a minimal frontend implementation for the biometric attendance system.
 
 ## Getting Started
 
-### Installing
+This is a simple, standalone HTML page that provides a user interface for the attendance biometric system.
 
-To install the project, you need to clone the repository and install the required packages.
+### Running the Frontend
+
+Simply open the `index.html` file in your web browser:
 
 ```bash
 git clone https://github.com/Aman-Verma-28/AttendanceBiometric.git
 cd AttendanceBiometric
-pip install -r backendrequirements.txt
+git checkout feature/fe
 ```
 
-### Running the project
-
-To run the project, you need to run the backend and the frontend separately.
-
-#### Backend
-
-To run the backend, you need to run the following command:
+Then open `index.html` in your browser, or use a simple HTTP server:
 
 ```bash
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
+# Using Python
+python -m http.server 8000
+
+# Using Node.js
+npx http-server
 ```
 
-#### Frontend
+Then navigate to `http://localhost:8000` in your browser.
 
-The fronted will be the admin panel of the Django project. You can access it by going to the following URL:
+## Features
 
-```
-http://localhost:8000/admin
-```
+- Clean, modern UI for attendance tracking
+- User token input for biometric identification
+- Entry and exit recording functionality
+- Responsive design that works on all devices
 

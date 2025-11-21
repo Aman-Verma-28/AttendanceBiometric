@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Biometric System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .fingerprint-icon {
+            text-align: center;
+            font-size: 80px;
+            margin: 30px 0;
+            color: #667eea;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-entry {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-entry:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-exit {
+            background: #764ba2;
+            color: white;
+        }
+        
+        .btn-exit:hover {
+            background: #653a8e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+        
+        .status-message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .info-section p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Attendance Biometric System</h1>
+        <p class="subtitle">Secure fingerprint-based attendance tracking</p>
+        
+        <div class="fingerprint-icon">👆</div>
+        
+        <div class="input-group">
+            <label for="userToken">User Token</label>
+            <input type="text" id="userToken" placeholder="Enter your biometric token" />
+        </div>
+        
+        <div class="input-group">
+            <label for="itemToken">Item Token (Optional)</label>
+            <input type="text" id="itemToken" placeholder="Enter item token for entry" />
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-entry" onclick="recordEntry()">Record Entry</button>
+            <button class="btn-exit" onclick="recordExit()">Record Exit</button>
+        </div>
+        
+        <div id="statusMessage" class="status-message"></div>
+        
+        <div class="info-section">
+            <h3>How to Use</h3>
+            <p>
+                1. Enter your unique biometric token in the User Token field.<br>
+                2. For entry, optionally provide an item token.<br>
+                3. Click "Record Entry" to mark your arrival.<br>
+                4. Click "Record Exit" to mark your departure.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message ${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+        
+        function recordEntry() {
+            const userToken = document.getElementById('userToken').value;
+            const itemToken = document.getElementById('itemToken').value;
+            
+            if (!userToken) {
+                showMessage('Please enter your user token', 'error');
+                return;
+            }
+            
+            showMessage('Entry recorded successfully!', 'success');
+            console.log('Entry recorded:', { userToken, itemToken });
+        }
+        
+        function recordExit() {
+            const userToken = document.getElementById('userToken').value;
+            
+            if (!userToken) {
+                showMessage('Please enter your user token', 'error');
+                return;
+            }
+            
+            showMessage('Exit recorded successfully!', 'success');
+            console.log('Exit recorded:', { userToken });
+        }
+    </script>
+</body>
+</html>
