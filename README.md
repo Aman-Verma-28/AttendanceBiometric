@@ -6,7 +6,7 @@ A barcode-based attendance tracking system built with Django and Django REST Fra
 
 - **Backend:** Django 5.0, Django REST Framework
 - **Database:** SQLite
-- **Auth:** Django admin + djangorestframework-simplejwt (JWT)
+- **Auth:** Django admin (djangorestframework-simplejwt is installed but JWT protection is not yet enforced on API endpoints)
 - **Barcode Generation:** python-barcode with Pillow
 
 ## Project Structure
@@ -85,6 +85,8 @@ Record a user's entry for a given item.
 
 Retrieve attendance records. Omit `token` to list all active entries, or provide it to filter by user.
 
+> **Note:** This endpoint reads `token` from the request body (`request.data`), which is unconventional for GET requests. Some HTTP clients may not support sending a body with GET. Consider using a query parameter instead (e.g., `GET /entry/?token=<user_token>`).
+
 **Request body (optional):**
 
 ```json
@@ -115,5 +117,5 @@ Record a user's exit and mark the attendance as inactive.
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the MIT License.
 
