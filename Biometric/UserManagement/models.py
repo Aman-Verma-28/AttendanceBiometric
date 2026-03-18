@@ -37,9 +37,11 @@ class UserRegistraion(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.token:
-            self.token = uuid.uuid4().hex[:6].upper()
-            self.barcode = generate_barcode(self.token, "user_images")
+            self.token = uuid.uuid4().hex.upper()
         super().save(*args, **kwargs)
+        if not self.barcode:
+            self.barcode = generate_barcode(self.token, "user_images")
+            super().save(update_fields=["barcode"])
 
 
 class UserAttendance(models.Model):
@@ -64,6 +66,8 @@ class Item(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.token:
-            self.token = uuid.uuid4().hex[:6].upper()
-            self.barcode = generate_barcode(self.token, "item_images")
+            self.token = uuid.uuid4().hex.upper()
         super().save(*args, **kwargs)
+        if not self.barcode:
+            self.barcode = generate_barcode(self.token, "item_images")
+            super().save(update_fields=["barcode"])
