@@ -1,16 +1,22 @@
+import os
 import uuid
 
 import barcode
 from barcode.writer import ImageWriter
+from django.conf import settings
 from django.db import models
 
 
-def generate_barcode(data, barcode_type="code128"):
-    """Generate a barcode image for the given data."""
+def generate_barcode(data, upload_to, barcode_type="code128"):
+    """Generate a barcode image and save it under MEDIA_ROOT/upload_to."""
+    output_dir = os.path.join(settings.MEDIA_ROOT, upload_to)
+    os.makedirs(output_dir, exist_ok=True)
+
     barcode_class = barcode.get_barcode_class(barcode_type)
     barcode_instance = barcode_class(data, writer=ImageWriter())
-    filename = barcode_instance.save(data)
-    return filename
+    filepath = barcode_instance.save(os.path.join(output_dir, data))
+    # Return path relative to MEDIA_ROOT for the ImageField
+    return os.path.relpath(filepath, settings.MEDIA_ROOT)
 
 
 class UserRegistraion(models.Model):
@@ -32,7 +38,7 @@ class UserRegistraion(models.Model):
     def save(self, *args, **kwargs):
         if not self.token:
             self.token = uuid.uuid4().hex[:6].upper()
-            self.barcode = generate_barcode(self.token)
+            self.barcode = generate_barcode(self.token, "user_images")
         super().save(*args, **kwargs)
 
 
@@ -59,5 +65,5 @@ class Item(models.Model):
     def save(self, *args, **kwargs):
         if not self.token:
             self.token = uuid.uuid4().hex[:6].upper()
-            self.barcode = generate_barcode(self.token)
+            self.barcode = generate_barcode(self.token, "item_images")
         super().save(*args, **kwargs)
