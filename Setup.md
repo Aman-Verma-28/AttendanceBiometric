@@ -1,16 +1,17 @@
 # Task 33g7c3d6: end-to-end steps (catalog search, pg_trgm GIN vs GiST)
 
-Idea: [idea-draft.md](idea-draft.md) (v2). Rules: [task-instructions.md](task-instructions.md).
+Idea: [idea-draft.md](idea-draft.md) (v2, **APPROVED**). Rules: [task-instructions.md](task-instructions.md).
 Apps: **pgAdmin 4** + **Google Sheets**. Target recording: **about 40 minutes** (hard window 15:00–50:59).
+Task files: [33g7c3d6/](33g7c3d6/) (inputs go in `33g7c3d6/inputs/`).
 
-| Phase | What | When |
+| Phase | What | Status |
 |---|---|---|
-| A | Get the idea approved | now |
-| B | One-time Mac setup (Recorder user, Xcode/Inspector, TaskRecorder, Dock/clock) | once |
-| C | Build the database and the two input files | before recording |
-| D | Set up pgAdmin 4 and Google Sheets | before recording |
-| E | Metadata.rtf, opening Goal doc, Studio pre-recording fields | after approval |
-| F | Dry run, then reset the database | before recording |
+| A | Get the idea approved | **DONE** |
+| B | One-time Mac setup (Recorder user, Xcode/Inspector, TaskRecorder, Dock/clock) | **DONE** |
+| C | Build the database and the two input files | **DONE** (inputs validated and loaded 2026-10-26; DB reset to the pre-recording state) |
+| D | Set up pgAdmin 4 and Google Sheets | to do |
+| E | Metadata.rtf, opening Goal doc, Studio pre-recording fields | to do (text ready below) |
+| F | Dry run, then reset the database | to do |
 | G | Pre-flight checklist (the 10 minutes before Start) | recording day |
 | H | The recording (run sheet with SQL and narration cues) | recording |
 | I | Stop and validate | after recording |
@@ -19,16 +20,27 @@ Apps: **pgAdmin 4** + **Google Sheets**. Target recording: **about 40 minutes** 
 
 ---
 
-## Phase A: get the idea approved (nothing below the setup steps is allowed before this)
+## Phase A: idea approved (DONE)
 
-1. In Studio task 33g7c3d6 → **1. Create your idea** → **Describe your idea**: paste the five headings from
-   [idea-draft.md](idea-draft.md). **Apps**: type `pgAdmin 4` → Enter, `Google Sheets` → Enter (use **Other** if
-   either isn't suggested).
-2. **Submit idea**. Wait about 1 minute, refresh, and read **Idea check result**.
-3. When it's approved, the same task moves to **In Progress** and the approval text (with an Approval ID) is
-   pre-filled in Prompt/Description. **Copy the approved Goal paragraph exactly.** It's the text you paste
-   everywhere below. If the approved Goal differs from the draft, use the approved one.
-4. If the plan changes later, use **Revise idea** and wait for re-approval before recording.
+### The approved Goal: paste this exact text in three places
+1. TaskRecorder → **Task Description**.
+2. The opening Google Docs document (only this paragraph, no Approval ID).
+3. Metadata.rtf → **Request**.
+
+Before using it, compare it against the Goal in Studio's pre-filled **Prompt/Description**. If Studio's text
+differs in any character, **Studio's version wins**: replace it here and everywhere else.
+
+```
+As a backend developer, I will fix a slow product-search query in a synthetic PostgreSQL catalog database using pgAdmin 4 and Google Sheets. The search matches any part of the product name with ILIKE '%term%', so the existing B-tree index on name cannot help. In pgAdmin 4, I will read the execution plans, then build and measure two trigram index options from the pg_trgm extension, GIN and GiST, against a rare term, a common term and a two-letter term, and confirm every search returns exactly the same rows as before. In Google Sheets, I will compare median timings, index sizes and build times to choose one index. I will deliver catalog_search_index.sql, with the chosen index, my measurements and a minimum search-length recommendation, and the benchmark spreadsheet for my team's code review.
+```
+
+### What the approval means for the rest of this file
+- **Record exactly what was approved:** both apps, all three terms, both index types, the equality checks, and
+  both deliverables. If anything has to change materially, use **Revise idea** and wait for re-approval
+  *before* recording.
+- **Never reuse or show the Approval ID** on screen.
+- **The epilogue is required:** this idea was approved after Oct 19, 2026 6 PM PT.
+- **Continue in the same Studio task.** It is now In Progress; don't create a new one.
 
 ---
 
@@ -89,12 +101,15 @@ On the task page: **Watch: How to Narrate Well** (required before the first task
 
 ## Phase C: database and input files (main account, Terminal)
 
-### C1. Why you write these yourself
-Input files must be **self-created**, or made with **Gemini** (the only AI allowed for inputs, and then Final
-Notes must say `AI-generated before recording`). So the two input files below are a spec for you to write; I
-haven't written them.
+### C1. Make the input files with Gemini
+Input files must be **self-created**, or made with **Gemini** (the only AI allowed for inputs). Route chosen:
+**Gemini**. Paste the prompt in [33g7c3d6/gemini-prompt.md](33g7c3d6/gemini-prompt.md) into Gemini (with your
+@mercor.expert account) and save the outputs to `33g7c3d6/inputs/`. That makes them **AI-generated file**
+inputs, and Final Notes must say exactly `AI-generated before recording`. The spec in C3 and C4 is what the
+prompt asks for.
 
-### C2. A neutral database login (so pgAdmin never shows `amanverma`)
+### C2. A neutral database login (so pgAdmin never shows `amanverma`): DONE 2026-10-26
+Role `backend_dev` (LOGIN; local auth is trust, so no password) and database `catalog` (owned by it) exist.
 Your PostgreSQL superuser is `amanverma`, and pgAdmin shows the login name in tab titles. Create a neutral
 role and database, then build everything as that role:
 ```sql
@@ -182,7 +197,7 @@ Deliverables.zip.
 
 ---
 
-## Phase E: Metadata.rtf, opening doc, Studio fields (after approval)
+## Phase E: Metadata.rtf, opening doc, Studio fields (do now: the idea is approved)
 
 ### E1. Metadata.rtf (TextEdit is allowed only for this file)
 Download the template (https://drive.google.com/file/d/1_WThzOJgZzk_WcUdDtqO1QR4qYG1tbGa/view), open it in
@@ -192,7 +207,7 @@ TextEdit, fill the three sections, **delete everything from "PLEASE DELETE THIS 
 ```
 Topology: pgAdmin 4 (LOOKUP) -> Google Sheets (CREATE) -> pgAdmin 4 (MODIFY) -> Google Sheets (MODIFY) -> pgAdmin 4 (CREATE)
 
-Request: <paste the APPROVED Goal, character for character>
+Request: As a backend developer, I will fix a slow product-search query in a synthetic PostgreSQL catalog database using pgAdmin 4 and Google Sheets. The search matches any part of the product name with ILIKE '%term%', so the existing B-tree index on name cannot help. In pgAdmin 4, I will read the execution plans, then build and measure two trigram index options from the pg_trgm extension, GIN and GiST, against a rare term, a common term and a two-letter term, and confirm every search returns exactly the same rows as before. In Google Sheets, I will compare median timings, index sizes and build times to choose one index. I will deliver catalog_search_index.sql, with the chosen index, my measurements and a minimum search-length recommendation, and the benchmark spreadsheet for my team's code review.
 
 Task Description:
 1. Run the catalog search query in pgAdmin 4 with a rare, a common and a two-letter term and record the baseline row counts and timings.
@@ -207,13 +222,14 @@ Metadata.rtf on screen.
 
 ### E2. Opening Goal document
 A **Google Docs** document (in its own browser window in Recorder) containing **only the approved Goal
-paragraph**: no Approval ID, no other approval text. Not Notes.app or TextEdit. Google Docs doesn't count as a
+paragraph** (the block in Phase A): no Approval ID, no other approval text. Name it something neutral like
+`Search index task`. Not Notes.app or TextEdit. Google Docs doesn't count as a
 task app, because it's only used for the opening.
 
 ### E3. Studio pre-recording fields (main account)
 - **Before Recording (Task Plan)**: tick the confirm box when Metadata.rtf is ready, the Request matches the
   Goal, and the inputs are clean.
-- **Inputs Used**: **Manually created file**.
+- **Inputs Used**: **AI-generated file** (made with Gemini before recording).
 - **Before Recording (Prepare)** → **Display**: choose the display and resolution you'll record on (the
   built-in display) and keep it the same.
 
@@ -262,7 +278,7 @@ Recorder account:
 - [ ] **Opening doc**: the Google Docs window with only the Goal, visible behind TaskRecorder.
 - [ ] Check the account corner of every visible app; no personal name, photo or email anywhere.
 - [ ] **TaskRecorder**: permissions green; mic selected and the level bar goes green on a test sentence; correct
-  display; **Task Description** = approved Goal (pasted exactly, no link or path); **Used Apps** = `pgAdmin 4`,
+  display; **Task Description** = the approved Goal from Phase A (pasted exactly, no link or path); **Used Apps** = `pgAdmin 4`,
   `Google Sheets` (exactly as in Studio). Clear anything left from earlier tests.
   *If TaskRecorder only lets you pick installed apps and Google Sheets isn't one, ask @Maven in #odin--helpdesk
   how to list a browser-based app before recording.*
@@ -290,14 +306,18 @@ Golden rules for the whole take:
 - Bring up pgAdmin 4 from the Dock.
 - Walk the tree: point at `products` → **Indexes** → `products_name_idx`. *"The team already added a B-tree
   index on name."*
-- In the Query Tool, read `catalog_search.sql` aloud in plain terms.
+- In the Query Tool, read `catalog_search.sql` aloud in plain terms. On first use, say what the prepared data
+  is, without naming any AI tool or inventing a source: *"The catalog database is a synthetic test copy of
+  500,000 product names that I prepared for this test. It contains no real customer data and no copyrighted
+  material."*
 - Make three copies of the query, one each for the **rare**, **common** and **two-letter** terms. Say why you
   picked each one: a selective search, a broad search, and a term too short for trigrams.
 - Select each query and click **Execute**. Point at the row count and the "Query complete" time.
 
 ### Step 2: read the plans (about 4 min)
 - Select the rare-term query → **Explain Analyze** button (Buffers on) → **Explain** tab → **Graphical**.
-- Hover each node and name it. Show that `products_name_idx` is **not** used.
+- Hover each node and name it. Expect **Limit → Gather Merge → Sort → Parallel Seq Scan** (2 workers),
+  with "Rows Removed by Filter" around 166k per worker. Show that `products_name_idx` is **not** used.
 - **Why:** *"A B-tree is sorted by the start of the string. `ILIKE '%walnut%'` can start anywhere, so the index
   can't narrow the search, and PostgreSQL reads the whole table and filters every row."*
 - Point at the **Buffers** and actual-rows numbers.
@@ -353,6 +373,10 @@ SELECT pg_size_pretty(pg_relation_size('products_name_trgm_gist'));
   needs more rechecking, but it also supports similarity ordering, which GIN can't."*
 - Do the same measurements as Step 5: build time, size, plans, 3 timings per term. Then
   `DROP INDEX products_name_trgm_gist;`
+- **Watch the two-letter term here (the dry run showed this):** with GiST, the planner *does* use the index for
+  `qx`, and it's **slower than having no index**. The Bitmap Index Scan returns all 500,000 rows and
+  **Rows Removed by Index Recheck ≈ 499,960**. Point at that line. It's the strongest evidence for the
+  three-character minimum, and a real difference between GIN (whose planner avoided the index) and GiST.
 
 ### Step 7: compare and decide in Google Sheets (about 5 min)
 - Enter the GIN and GiST timings, medians, sizes and build times.
@@ -446,8 +470,7 @@ SELECT count(*) FROM (
    - **Minor** flags are advice.
 3. Do the manual checks one by one, and tick the **Task Checklist + PII** confirmation after opening both links.
 4. Tick the **epilogue** checkbox (you recorded one).
-5. **Final Notes**: *"All input files (create_catalog_db.sql, catalog_search.sql) were manually created before
-   recording; the product data is synthetic, generated by the script, with no external sources."* (If you used
-   Gemini for them instead, write exactly `AI-generated before recording`.)
+5. **Final Notes**: exactly `AI-generated before recording` (for create_catalog_db.sql and catalog_search.sql).
+   Fill in **Source of Data** if Studio shows it.
 6. Tick **Final Confirmation** → **Submit for Review**. The status should become **Ready for Review**.
 7. Afterwards, keep the recording folders until review passes, then delete them and empty the Trash.
