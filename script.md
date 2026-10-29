@@ -1,545 +1,410 @@
-# Narration script: task 33g7c3d6 v3, take 3 (catalog search, pg_trgm GIN vs GiST, decision in Sheets)
+# Narration script: payments refund list (pgAdmin 4 + Google Sheets, about 32 minutes)
 
-Goes with [task-steps.md](task-steps.md) Phase H. About 38 to 42 minutes in total. The take-2 script is archived as
-[script-take2.md](script-take2.md).
-
-**Why take 3.** Review #1 sent take 2 back for two reasons. First, the narration failed the eyes-closed test: it said
-"the yellow icon over here", "the save icon over here", "copy this" and "this walnut", and clicked pgAdmin in the
-Dock and ran queries again and again without saying where anything was. Second, Used Apps was empty. This script
-fixes the first problem: **every action says What + Where (+ Why), and every cursor movement is spoken.**
+Goes with [run-sheet.md](run-sheet.md) Phase G. The run sheet has the setup. This file is what you **do** and **say**,
+with the real numbers from the loaded data.
 
 ## How to use this script
-- **Rehearse with it; don't read it on camera.** Recited narration sounds robotic. Learn the screen map and the
-  pattern below, then say it in your own words. Only the intro sentence must be word for word.
-- **Keep it off the screen while recording.** Use your phone, an iPad or a printout.
-- `ACTION` = what your hands do. `SAY` = what you say while doing it. `{{…}}` = read the real number off the screen
-  (the dry-run value is a guide; never say a number you didn't see).
-- **Say every keyboard shortcut out loud** as you press it. Prefer clicking the toolbar button and saying where it is.
-- **No gap over 45 seconds. No typing burst over 45 seconds.**
+- **Rehearse with it; don't read it on camera.** Learn the flow and the *why* lines, then say them in your own words.
+  Only the intro sentence must be word for word.
+- **Keep it off the screen.** Use your phone, an iPad or a printout.
+- `ACTION` = what your hands do. `SAY` = what you say while doing it. Numbers in **bold** are what the screen will show
+  with this data. If the screen shows something else, say what you see.
+- **Every click:** name the control, say where it is, and say the cursor movement. Never a bare "this" or "here".
+- **Say every keyboard shortcut** as you press it ("Command S to save").
+- **No silence over 45 seconds. No typing burst over 45 seconds:** type a query in two or three bursts and talk in
+  between.
+- **To run one query:** highlight the whole query, then click Execute. Triple-click a one-line query; drag from the
+  first word to the semicolon for a longer one.
 
-### The eyes-closed pattern (use it for every click)
-> **"I'll move the cursor** [direction] **to** [named control], **the** [shape or colour] **in the** [screen area],
-> **and click it** [to do what / why]**."** Then say what changed and where it shows.
+### The pattern for every click
+> "I'll move the cursor [direction] to [named control], the [shape or colour] in the [screen area], and click it
+> [to do what]."
 
-Example from the reviewer: *"I will now move the cursor right towards the Dock, which is on the right of the screen,
-and click on the Finder app, which is the very first app from the top of the Dock, to open it."*
-
-### Banned words: say the name and the place instead
 | Don't say | Say |
 |---|---|
-| "the yellow icon over here" | "the yellow Minimize button, the middle of the three circles at the top-left corner of the Chrome window" |
-| "click pgAdmin" (no place) | "the pgAdmin 4 icon, the blue elephant, in the lower part of the Dock on the right edge of the screen" |
-| "the save icon over here" | "the Save File button, the floppy-disk icon, second from the left in the toolbar above the editor" |
-| "I have saved it" | "I'll click the blue Save button at the bottom-right of the dialog. The tab title at the top of the editor now reads search_measurements.sql, so it's saved." |
-| "copy this" | "I'll triple-click line 1, the walnut query, to highlight the whole line, and press Command C to copy it" |
-| "this walnut" | "on line 3, I'll double-click the word walnut inside the quotes" |
-| "select this and click execute" | "I'll triple-click line 5 to highlight the Q X query, then move up to the toolbar and click Execute, the white play triangle just right of the square Stop button" |
-| (running again in silence) | "Run two: I'll move back up to the Execute button, the play triangle in the toolbar, and click it again" |
-| "it says here" | "in the status bar at the bottom-left of the results panel, next to Total rows, it says Query complete …" |
+| "click here" | "click Execute, the white play triangle in the toolbar above the editor" |
+| "copy this" | "double-click the first order id in Data Output and press Command C" |
+| "it says here" | "the Messages tab, at the top-left of the results panel, says SELECT 110" |
+| "save it" | "Command S to save; the star after the file name in the tab title disappears" |
 
 ---
 
-## Screen map (learn this before recording; check it once on the real screen)
-
-Positions are from take 2. The Dock order changes when an app is quit, so look at the Dock once before Start.
+## Screen map (check it once on the real screen)
 
 **macOS**
-- **Dock**: right edge of the screen. **Chrome** (red, yellow and green circle) and **pgAdmin 4** (blue elephant)
-  are in the lower part, pgAdmin just below Chrome. TaskRecorder is just below pgAdmin.
-- **Window buttons**: three circles at the **top-left corner** of every window: red Close (left), yellow Minimize
-  (middle), green Zoom (right; hold it for the Tile menu).
-- **Menu bar**: across the very top. The clock is at its right end.
+- **Dock** on the right edge. **Chrome** is the red, yellow and green circle; **pgAdmin 4** is the blue elephant just
+  below it; **TaskRecorder** is just below pgAdmin.
+- **Window buttons**: three circles at each window's top-left: red Close, **yellow Minimize**, green Zoom.
 
-**pgAdmin 4** (tiled to the left half)
-- **Object Explorer**: the panel down the **left side**. The tree is Servers → Local Postgres 17 → Databases → catalog →
-  Schemas → public → Tables → products → Indexes.
-- **Tab row**: across the top of the right-hand area. The Query Tool tab is the **last tab, on the right**, and its title
-  is the open file's name.
-- **Query Tool toolbar**: the row of icons just under the tab row, **from left to right**:
+**pgAdmin 4**
+- **Object Explorer**: the panel down the left side.
+- **Query Tool toolbar**, the row of icons above the editor, from left to right:
   - Open File (folder);
-  - **Save File** (floppy disk), with a small **down arrow** next to it that holds **Save As**;
+  - **Save File** (floppy disk), with a **small down arrow** next to it that holds **Save As**;
   - Edit;
   - Filter;
   - the "No limit" box;
-  - **Stop** (grey square);
-  - **Execute** (white **play triangle**, F5);
-  - a small down arrow;
-  - Explain (letter E);
-  - Explain Analyze;
-  - Commit and Rollback;
-  - Macros;
-  - Help (question mark, far right).
-- **Editor**: the middle of the right-hand area, with **line numbers down its left edge**.
-- **Results panel**: the lower half. Its tabs **Data Output**, **Messages** and **Notifications** are at its
-  **top-left**.
-- **Status bar**: the bottom edge of the results panel. **Total rows** is at the **bottom-left**, and **Query
-  complete** with the time is just to its right.
+  - Stop (grey square);
+  - **Execute** (white **play triangle**, F5).
+- **Editor**: the middle area, with line numbers down its left edge.
+- **Results panel**: the lower half, with the **Data Output** and **Messages** tabs at its top-left.
+- **Status bar**: the bottom edge. **Total rows** is at the bottom-left, and **Query complete** with the time is to its
+  right.
+- **Save results to file**: in the small toolbar right above the result grid, the **down-arrow icon**, sixth from the
+  left, just left of the zig-zag graph icon.
 
-**Chrome / Google Sheets** (tiled to the right half)
-- **Browser tabs** across the very top: **Goal Document** on the left, **search_benchmark** to its right.
-- **Sheet title** at the top-left, with the **menu row** under it: File, Edit, View, Insert, Format, Data, Tools,
-  Extensions, Help.
-- **Name box**: the small box at the **left end of the formula bar**, under the toolbar. It shows the cell address,
-  for example E2. The **formula bar** (fx) is to its right.
-- **Column letters** run along the top of the grid, and **row numbers** run down its left edge.
-- **Sheet1 tab**: at the **bottom-left**.
-- **Download indicator**: after a download, a **download arrow icon** appears in Chrome's toolbar at the **top-right**,
-  left of the profile button. Never use the Downloads stack in the Dock.
-
----
+**Chrome / Google Sheets**
+- **Tabs** across the top: **Goal Document**, then **refund_summary**.
+- The **File, Edit, View, Insert, …** menus at the top-left, under the sheet title.
+- The **sheet tabs** at the bottom-left. The **pivot table editor** opens as a panel on the right side.
+- The **download arrow** in Chrome's toolbar at the top-right, after a download.
 
 | Section | Target | Clock at end (about) |
 |---|---|---|
 | Intro | 0:20 | 0:20 |
-| 1. Baseline searches | 4:30 | 4:50 |
-| 2. Read the plans | 4:30 | 9:20 |
-| 3. Time each term three times | 4:30 | 13:50 |
-| 4. Sheets: baseline | 4:00 | 17:50 |
-| 5. GIN index | 7:00 | 24:50 |
-| 6. GiST index | 6:00 | 30:50 |
-| 7. Sheets: compare and decide | 6:00 | 36:50 |
-| Epilogue | 3:30 | 40:20 |
-
-If you're past **47:00** at the epilogue, shorten it, but still cover all six points. The hard limit is 50:59.
+| 1. Find the orders charged more than once | 4:00 | 4:20 |
+| 2. The retry pattern on one order | 3:00 | 7:20 |
+| 3. Build the refund list | 6:00 | 13:20 |
+| 4. Check, total, export | 6:00 | 19:20 |
+| 5. Sheets: import, pivot, cross-check | 7:00 | 26:20 |
+| 6. Summary, download, stop check | 3:00 | 29:20 |
+| Epilogue | 3:00 | 32:20 |
 
 ---
 
 ## Intro (under 20 seconds, exact words)
 
-ACTION: Goal document visible behind TaskRecorder. **Check Used Apps shows `pgAdmin 4` and `Google Sheets`.** Click
+ACTION: the Goal Document is visible behind TaskRecorder. **Used Apps shows pgAdmin 4 and Google Sheets.** Click
 **Start Recording**, then minimize TaskRecorder at once.
 
 SAY (exactly):
 > "I will be beginning my task soon. Here is the workflow I have in mind."
 
-ACTION: wait 2 to 3 seconds. Move to the top-left of the Chrome window → yellow Minimize button.
+ACTION: wait 2 to 3 seconds. Cursor to Chrome's top-left → yellow Minimize.
 SAY:
-> "I'll move the cursor up to the top-left corner of the Chrome window and click the yellow Minimize button, the
-> middle of the three circles, to put the Goal document away."
+> "I'll move the cursor to the top-left corner of the Chrome window and click the yellow Minimize button, the middle
+> of the three circles."
 
 ---
 
-## Step 1: baseline searches in pgAdmin 4
+## Step 1: find the orders charged more than once (pgAdmin 4)
 
-ACTION: cursor → Dock (right edge) → pgAdmin 4 elephant icon → click.
+ACTION: cursor → Dock (right edge) → pgAdmin elephant → click.
 SAY:
-> "Step 1. I'll move the cursor right to the Dock on the right edge of the screen. In the lower part of the Dock,
-> just below the Chrome icon, is pgAdmin 4, the blue elephant icon. I'll click it to bring pgAdmin to the front. It's
-> already connected to my local PostgreSQL 17 server."
+> "Step 1. Yesterday our payment gateway had timeouts, and support says some customers were charged twice. I'll move
+> the cursor right to the Dock on the right edge of the screen and click pgAdmin 4, the blue elephant just below
+> Chrome."
 
-ACTION: point down the Object Explorer tree to `products` → `Indexes` → the two indexes.
+ACTION: Object Explorer: expand payments → Schemas → public → Tables → payments → Columns, and point down the columns.
 SAY:
-> "On the left side of the window is the Object Explorer. I'll move the cursor down the tree: the catalog database,
-> Schemas, public, Tables, then the products table. Under products I'll click the arrow next to Indexes to expand
-> it. There are two indexes: products_pkey on the id column, and products_name_idx, a B-tree index on name that the
-> team added earlier to speed up search."
+> "On the left side is the Object Explorer. I'll expand the payments database, then Schemas, public, Tables, and the
+> payments table, then click the arrow next to Columns. Each row of this table is one capture attempt, which means one
+> try at taking money from a card. The columns are the payment id, the order id, a customer code, the amount, the
+> currency, a status of captured or failed, the idempotency key the checkout service sent, and the time."
 
-ACTION: cursor → editor (centre right), trace the query on line 1.
+SAY (first-use description of the input; required; never name a tool):
+> "This is a synthetic test copy of one day of payments, about ten thousand rows prepared before this session. It
+> contains no real customer data: customers are just codes, and there are no names or card numbers."
+
+ACTION: right-click the **payments database** (not the table) → **Query Tool**.
 SAY:
-> "Now I'll move the cursor right to the Query Tool in the middle of the window. The tab at the top-right says
-> catalog_search.sql, the query our product-search API runs. On line 1 it selects id, name and price from products
-> where name ILIKE percent, the search term, percent, ordered by id, limited to 50 rows. ILIKE makes the match
-> case-insensitive, and the percent signs on both sides mean the term can appear anywhere in the name."
+> "I'll move up the tree, right-click the payments database, and choose Query Tool from the menu. That opens an SQL
+> editor in the middle of the window."
 
-SAY (first-use description of the prepared data; required; never name a tool):
-> "The catalog is a synthetic test database of 500,000 generated product names, prepared before this session. It
-> contains no real customer data and nothing copyrighted."
-
-ACTION: toolbar → small down arrow right of the floppy disk → **Save As** → Where = `catalog-task` → name
-`search_measurements.sql` → **Save**. Point at the tab title.
+ACTION: toolbar → small down arrow right of the floppy disk → **Save As** → type `refund_investigation.sql` → Where:
+`payments-task` → blue **Save**.
 SAY:
-> "Before I change anything, I'll save a working copy so the original file stays untouched. In the toolbar above
-> the editor, the second icon from the left is the Save File button, a floppy disk. I'll click the small down arrow
-> just to its right and choose Save As from the menu."
-> "A save dialog opens in the middle of the screen. In the Save As box at the top I'll type search underscore
-> measurements dot sql. In the Where drop-down below it I'll choose the catalog-task folder. Then I'll click the
-> blue Save button at the bottom-right of the dialog."
-> "The tab title at the top right of the editor now reads search_measurements.sql, so the working copy is saved and
-> this file will hold my measurements."
+> "Before I write anything, I'll save the file so all my queries are kept. In the toolbar above the editor, the second
+> icon from the left is the Save File button, a floppy disk. I'll click the small down arrow just to its right and
+> choose Save As. In the dialog, I'll type refund underscore investigation dot sql, choose the payments-task folder in
+> the Where menu, and click the blue Save button at the bottom-right. The tab title at the top of the editor now reads
+> refund_investigation.sql."
 
+ACTION: type `SELECT count(*) AS attempts, count(DISTINCT order_id) AS orders FROM payments;` → triple-click → Execute.
 SAY:
-> "Users say search is slow, so I'll test three kinds of search term. A rare term, walnut, in only a handful of
-> products. A common term, steel, in about a quarter of the catalog. And a very short term, the two letters Q X,
-> because real users type short fragments."
+> "First, the size of the table. I'll type a count of all attempts and of distinct orders. I'll triple-click the line
+> to highlight it, move up to the toolbar and click Execute, the white play triangle just right of the grey square Stop
+> button."
+> "In Data Output in the lower half: **10,107** attempts but only **9,850** orders. A few extra attempts are normal: a
+> card gets declined and the customer tries again. The problem is the gateway timeout, which the incident report puts
+> between 14:00 and 14:30 UTC on October 14th."
 
-ACTION: triple-click line 1 → ⌘C → click end of line 1 → Return → ⌘V → Return → ⌘V.
-SAY:
-> "I'll move the cursor to line 1 in the editor and triple-click it to highlight the whole walnut query, then press
-> Command C to copy it. I'll click at the end of line 1, after the semicolon, press Return for a new line and press
-> Command V to paste a copy on line 2, then Return and Command V again for a third copy on line 3."
+ACTION: type the window query in two bursts (lines 1–4, then 5–7) → drag-select it → Execute.
+```sql
+SELECT order_id, count(*) AS captures
+FROM payments
+WHERE status = 'captured'
+  AND created_at >= '2026-10-14 14:00+00' AND created_at < '2026-10-14 14:30+00'
+GROUP BY order_id
+HAVING count(*) > 1
+ORDER BY captures DESC, order_id;
+```
+SAY (while typing the first burst):
+> "Now I'll count captures per order inside that window. I only count status captured, because a failed attempt never
+> took any money."
+SAY (second burst):
+> "GROUP BY puts each order's rows together, and HAVING count greater than one keeps only the orders captured more than
+> once. I'll sort the worst first."
+SAY (after running):
+> "I'll drag from SELECT down to the semicolon to highlight the query and click Execute in the toolbar. In the status
+> bar at the bottom-left, Total rows says **100**. So a hundred orders were charged more than once. The first ten rows
+> in Data Output show **3** captures: those customers were charged three times. The rest show 2."
 
-ACTION: line 2 → double-click `walnut` → type `steel`; line 3 → double-click `walnut` → type `qx`.
+ACTION: **⌘S**.
 SAY:
-> "On line 2, I'll double-click the word walnut inside the quotes to select it and type steel. On line 3, I'll
-> double-click walnut inside the quotes again and type Q X."
-
-ACTION: triple-click line 1 → cursor up to the toolbar → **Execute** (play triangle) → point at the status bar.
-SAY:
-> "To run only the walnut query, I'll triple-click line 1 to highlight it. Then I'll move the cursor up to the
-> toolbar and click Execute, the white play triangle just to the right of the square Stop button. Its shortcut is F5.
-> Running only the highlighted line matters: with nothing highlighted, pgAdmin would run every statement in the
-> file."
-> "The rows appear in the Data Output tab in the lower half of the window. In the status bar at the bottom-left,
-> Total rows says 50, and just to its right, Query complete says about {{70}} milliseconds."
-
-ACTION: line 2 → triple-click → Execute; line 3 → triple-click → Execute.
-SAY:
-> "Next, steel. I'll triple-click line 2 and click the Execute play triangle in the toolbar again. Total rows at the
-> bottom-left says 50, and Query complete is almost instant."
-> "And Q X. I'll triple-click line 3 and click Execute in the toolbar. Total rows says only {{40}}, because fewer
-> than 50 products contain Q X, and it takes about {{70}} milliseconds."
-> "So the rare search and the short search are slow, and the common search is fast. That's the opposite of what you
-> might expect, and the execution plans will show why."
-
-ACTION (optional): type the `count(*)` line on line 4 → triple-click → Execute.
-SAY:
-> "To put a number on common, I'll add a count query on line 4, highlight it and click Execute. In Data Output,
-> the count column shows {{125,000}} products contain steel."
+> "Command S to save the file. The star after the name in the tab title goes away."
 
 ---
 
-## Step 2: read the plans
+## Step 2: the retry pattern on one order
 
-ACTION: click at the very start of line 1 → type `EXPLAIN (ANALYZE, BUFFERS) ` → triple-click line 1 → Execute.
+ACTION: Data Output → double-click the first order id (**2010091**) → ⌘C. In the editor, type the query, then paste the
+id with ⌘V → drag-select → Execute.
+```sql
+SELECT id, order_id, status, amount, currency, idempotency_key, created_at
+FROM payments
+WHERE order_id = 2010091
+ORDER BY created_at;
+```
 SAY:
-> "Step 2. I'll read the execution plan for walnut. I'll click at the very start of line 1, before the word SELECT,
-> and type EXPLAIN, open bracket, ANALYZE, comma, BUFFERS, close bracket. EXPLAIN ANALYZE actually runs the query and
-> reports what happened, and BUFFERS adds how many 8-kilobyte pages it touched."
-> "I'll triple-click line 1 and click Execute, the play triangle in the toolbar."
+> "Step 2. I want to see why the gateway let these through. In Data Output I'll double-click the first order id,
+> 2010091, and press Command C to copy it. Back in the editor I'll write a query for every attempt of one order, and
+> paste the id after order_id equals with Command V. Then I'll highlight the query and click Execute."
+> "Data Output shows **three** rows, all captured, all **217.38 dollars**, at **14:15:13**, **14:15:28** and **14:15:46**:
+> three charges in about half a minute."
 
-ACTION: cursor → Data Output (lower half) → start at the most indented row and move upward.
-SAY:
-> "The plan appears in the Data Output tab in the lower half, one plan line per row. I'll move the cursor down to the
-> most indented row near the bottom of the plan and read upwards. At the bottom is a Parallel Seq Scan on products.
-> That means PostgreSQL reads every row, split across the main process and two workers. Moving up: a Sort on id,
-> then Gather Merge, which combines the three sorted streams, and Limit at the top, which keeps the first 50."
-
-ACTION: point at `loops=3`, `Rows Removed by Filter`, `Buffers`.
-SAY:
-> "On the Parallel Seq Scan row, at the right end, it says loops equals three, so the numbers are per process and I
-> multiply by three. Two rows below, Rows Removed by Filter is about {{166,617}}, so roughly 499,850 rows were checked
-> and thrown away to find 150 matches. The next row, Buffers shared hit {{4,896}}, is every page of the table, all
-> from memory, so this is pure CPU work."
-
+ACTION: point along the **idempotency_key** column, row by row.
 SAY (the key *why*):
-> "Notice that products_name_idx doesn't appear anywhere in the plan. A B-tree keeps names sorted from the first
-> character, like a phone book sorted by surname, so it's great for names that start with something. But walnut can
-> appear anywhere in the name. With a wildcard at the front the sorted order doesn't help, so the planner ignores
-> that index and reads the whole table."
+> "Now the idempotency_key column. Every attempt has a **different** key. An idempotency key is a unique id the checkout
+> service sends with a payment, so if it ever sends the same request twice, the gateway recognises the key and charges
+> only once. But when the gateway timed out, the retry code generated a new key each time. To the gateway these looked
+> like three separate payments, so it charged all three. The root cause is the retry creating a new key instead of
+> reusing the original one. That's a code fix for later. Today's job is refunding the extra charges."
 
-ACTION: line 2 → add the prefix → triple-click → Execute → point at the top plan rows.
-SAY:
-> "For comparison, steel. I'll click at the start of line 2, type the same EXPLAIN prefix, triple-click the line and
-> click Execute in the toolbar. In Data Output the second row is an Index Scan using products_pkey, the primary key,
-> with the same filter. Because a quarter of the products contain steel, walking the table in id order finds 50
-> matches after about 200 rows. A few rows down, Rows Removed by Filter is just {{150}} and Buffers just {{5}}. The
-> LIMIT is doing the work."
+ACTION: **⌘S**.
 
 ---
 
-## Step 3: time each term three times
+## Step 3: build the refund list
 
-ACTION: line 3 → add the prefix. Typing it is fine (short); say it.
+SAY (before typing, cursor resting in the editor):
+> "Step 3. The rule for the refunds: for each order, number its successful captures in time order. Number one is the
+> charge the customer meant to make, so we keep it. Numbers two and three are duplicates, so we refund them. The order
+> of operations matters: I'll filter to captured rows first and number them second."
+
+ACTION (optional, about 30 seconds, shows why the order matters): type and run the trap query.
+```sql
+SELECT count(*) AS would_refund
+FROM (SELECT p.*, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY created_at, id) AS rn
+      FROM payments p) c
+WHERE rn > 1 AND status = 'captured';
+```
 SAY:
-> "Step 3. One run on its own is noisy, so I'll run each search three times and compare medians. First I'll click at
-> the start of line 3, the Q X query, and type the same EXPLAIN prefix."
+> "To show why, here's the wrong way: number every attempt first, failed ones included. I'll highlight it and click
+> Execute. It would refund **232** payments. The right answer is 110, so 122 of those are customers whose first
+> attempt failed and whose second attempt was their only real payment. This version would refund it, and they would
+> pay nothing."
 
-ACTION: triple-click line 1 → Execute three times → point at the last row each time.
-SAY:
-> "Walnut. I'll triple-click line 1 and click Execute, the play triangle in the toolbar. I'll scroll to the bottom of
-> Data Output: the last row, Execution Time, is the time spent inside the database, without drawing results on
-> screen. Run one: {{…}} milliseconds."
-> "Run two: I'll move back up to the Execute button in the toolbar and click it again. The last row in Data Output
-> says {{…}}."
-> "Run three: Execute again, at the top. {{…}} milliseconds."
+ACTION: type the real query in three bursts → drag-select → Execute → click the **Messages** tab.
+```sql
+CREATE TABLE refund_list AS
+SELECT id AS payment_id, order_id, customer_id, amount, currency
+FROM (
+  SELECT p.*, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY created_at, id) AS rn
+  FROM payments p
+  WHERE status = 'captured'
+) c
+WHERE rn > 1;
+```
+SAY (bursts):
+> "Now the right way. The inner query keeps only captured rows. Then ROW_NUMBER, partitioned by order_id, restarts the
+> numbering for every order, ordered by time. The id breaks a tie if two captures share the same second."
+> "The outer query keeps row number two and above, the duplicates, and saves them as a new table called refund_list."
+SAY (after running):
+> "I'll highlight from CREATE down to the semicolon and click Execute. Then I'll click the Messages tab at the top-left
+> of the results panel, next to Data Output. It says **SELECT 110**: one refund for each of the 90 orders charged twice,
+> and two refunds for each of the 10 orders charged three times. 90 plus 20 is 110."
 
-ACTION: click the empty line under the queries → type `-- no index | walnut: __, __, __`.
-SAY:
-> "I'll click on the empty line below the queries, near the bottom of the editor, and type a comment with those three
-> timings. The two dashes make it a comment, so it never runs."
-
-ACTION: the same for steel (line 2) and qx (line 3), each with a comment line.
-SAY (shorter now that the pattern is set, but still say where):
-> "Now steel. I'll triple-click line 2 and click Execute in the toolbar three times, reading Execution Time on the
-> last row of Data Output each time: {{…}}, {{…}} and {{…}}, well under a millisecond. I'll add a comment line under
-> the walnut one."
-> "And Q X. I'll triple-click line 3 and click Execute three times: {{…}}, {{…}} and {{…}}. As slow as walnut, because
-> it's rare too, so it also reads the whole table. One more comment line."
-
-ACTION: toolbar → Save File (floppy disk) click.
-SAY:
-> "To save my notes, I'll move up to the Save File button, the floppy disk second from the left in the toolbar, and
-> click it. The star after the file name in the tab title disappears, which tells me it's saved."
+ACTION: **⌘S**.
 
 ---
 
-## Step 4: Google Sheets, baseline
+## Step 4: check, total, export
 
-ACTION: Dock → Chrome → the `search_benchmark` tab.
+ACTION: type the check in two bursts → drag-select → Execute.
+```sql
+SELECT p.order_id, count(*) - count(r.payment_id) AS captures_left
+FROM payments p
+LEFT JOIN refund_list r ON r.payment_id = p.id
+WHERE p.status = 'captured'
+  AND p.order_id IN (SELECT order_id FROM refund_list)
+GROUP BY p.order_id
+HAVING count(*) - count(r.payment_id) <> 1;
+```
 SAY:
-> "Step 4. I'll record these numbers in Google Sheets so I can compare all three setups side by side. I'll move the
-> cursor right to the Dock and click the Chrome icon, the red, yellow and green circle, just above pgAdmin. Chrome
-> opens on the right half of the screen. At the top of the window I'll click the second browser tab,
-> search_benchmark, my blank sheet."
+> "Step 4. Before anything is refunded, I'll prove each customer ends up paying exactly once. For every affected order,
+> I take its captures and subtract the ones in the refund list. That must leave exactly one. The LEFT JOIN matches each
+> capture to the refund list if it's there, and count of r.payment_id counts only the matched ones. This query lists
+> any order where the result isn't one."
+> "Highlight, Execute. Data Output is **empty** and Total rows at the bottom-left says **zero**. No order is left with
+> zero charges or two charges, so every customer pays exactly once."
 
-ACTION: click A1 → type headers with Tab: `Term`, `No index run 1`, `No index run 2`, `No index run 3`,
-`No index median`.
+ACTION: type the totals → drag-select → Execute.
+```sql
+SELECT currency, count(*) AS refunds, sum(amount) AS refund_total
+FROM refund_list
+GROUP BY currency
+ORDER BY currency;
+```
 SAY:
-> "I'll click cell A1, the top-left cell of the grid, under column letter A. I'll type Term, then press Tab to move
-> one cell right to B1, and type No index run 1. Tab again for C1, run 2, Tab for D1, run 3, and Tab for E1, No
-> index median."
+> "Now the totals per currency. Euros, pounds and dollars can't be added together, so I group by currency. Highlight,
+> Execute. Data Output shows **EUR 30 refunds, 4,849.79**; **GBP 18, 2,323.47**; and **USD 62, 9,942.11**. That's 110
+> refunds."
 
-ACTION: click A2 → `walnut (rare)` Return `steel (common)` Return `qx (two-letter)`.
+ACTION: type the comment line `-- DB totals: EUR 4849.79 | GBP 2323.47 | USD 9942.11` → **⌘S**.
 SAY:
-> "I'll click cell A2, in column A one row down, and type walnut, rare. Return moves down to A3, steel, common. Return
-> again for A4, Q X, two-letter."
+> "I'll note these totals as a comment at the bottom of the file, so I can check the spreadsheet against them later.
+> The two dashes make it a comment, so it never runs. Command S to save."
 
-ACTION: click B2 → enter nine numbers, reading from pgAdmin on the left.
-SAY (between short bursts):
-> "Now the timings from my notes. pgAdmin is still open on the left half, so I can read the comment lines in the
-> editor. I'll click cell B2 and type walnut's three runs, pressing Tab between them: {{…}}, {{…}}, {{…}}. Then cell
-> B3 for steel… and cell B4 for Q X…"
-
-ACTION: click E2 → `=MEDIAN(B2:D2)` → Return → drag-select E2:E4 → ⌘D.
+ACTION: type `SELECT * FROM refund_list ORDER BY order_id, payment_id;` → triple-click → Execute.
 SAY:
-> "I'll click cell E2, under No index median, and type equals MEDIAN, open bracket, B2 colon D2, close bracket, then
-> press Return. To copy the formula down, I'll click E2 and drag down to E4 to highlight the three cells, then press
-> Command D, which fills down. The medians with no index are walnut {{70}}, steel {{0.2}} and Q X {{68}}
-> milliseconds. So the problem is rare terms, not every search."
+> "Now the export. I'll select every row of refund_list, sorted by order. Triple-click, Execute. Total rows says
+> **110**."
+
+ACTION: cursor → the toolbar right above the grid → **Save results to file** (down arrow, sixth from left) → name
+`duplicate_refunds.csv`, Where: `payments-task` → **Save**.
+SAY:
+> "I'll move the cursor down to the small toolbar right above the result grid and click Save results to file, the
+> down-arrow icon, sixth from the left, just left of the zig-zag graph icon. In the save dialog I'll name it duplicate
+> underscore refunds dot csv, choose the payments-task folder in the Where menu, and click Save at the bottom-right. The
+> payments operations team will load this file into the refund tool."
+
+ACTION: **⌘S** → yellow Minimize at pgAdmin's top-left.
+SAY:
+> "One more Command S to save my SQL file, and I'll minimize pgAdmin with the yellow button at its top-left."
 
 ---
 
-## Step 5: GIN trigram index
+## Step 5: Google Sheets: import, pivot, cross-check
 
-ACTION: Dock → pgAdmin → click the empty line under the comments → type `CREATE EXTENSION pg_trgm;` →
-triple-click → Execute → **Messages** tab.
+ACTION: Dock → Chrome → the **refund_summary** tab.
 SAY:
-> "Step 5. I'll go back to pgAdmin to try the first fix. I'll move the cursor right to the Dock and click the
-> pgAdmin elephant icon, below Chrome. In the editor I'll click the empty line under my comments and type CREATE
-> EXTENSION pg underscore trgm."
-> "Trigram indexes come from the pg_trgm extension, which ships with PostgreSQL but isn't enabled in this database
-> yet. I'll triple-click that line and click Execute in the toolbar. Then I'll click the Messages tab at the top-left
-> of the results panel, next to Data Output. It says CREATE EXTENSION, so it's enabled."
+> "Step 5. Now I'll build the summary for operations in Google Sheets. I'll move right to the Dock and click Chrome,
+> the red, yellow and green circle just above pgAdmin. At the top of the window I'll click the second tab,
+> refund_summary, my blank sheet."
 
-SAY (the concept):
-> "pg_trgm splits text into three-character pieces called trigrams. For walnut those are W-A-L, A-L-N, L-N-U and
-> N-U-T. If an index knows which rows contain each trigram, PostgreSQL can look up those four pieces and check only
-> the rows that have all of them, instead of reading the whole table."
-> "Two index types can store trigrams, GIN and GiST. Rather than guess, I'll build and measure both. First GIN, a
-> generalized inverted index. It works like the index at the back of a book: for each trigram, a list of the rows
-> that contain it."
-
-ACTION: next line → type the GIN `CREATE INDEX` → triple-click → Execute → Messages tab.
+ACTION: **File** (top-left) → **Import** → **Upload** tab → blue **Browse** → payments-task → duplicate_refunds.csv →
+**Open** → Import location **Insert new sheet(s)**, keep **Convert text to numbers** ticked → green **Import data**.
 SAY:
-> "On the next line I'll type CREATE INDEX products underscore name underscore trgm underscore gin, on products,
-> using gin, on the name column with gin underscore trgm underscore ops. That operator class tells it to index the
-> name's trigrams, not the whole value. I'll triple-click the line and click Execute in the toolbar."
-> "In the Messages tab at the top-left of the results panel, it says the query returned successfully in {{2}}
-> seconds. That's the build time, so I'll add it as a comment at the end of the line."
+> "I'll click the File menu at the top-left and choose Import. In the dialog I'll click the Upload tab, then the blue
+> Browse button. In the Finder window I'll choose payments-task in the sidebar, then duplicate_refunds.csv, and click
+> Open. For Import location I'll pick Insert new sheet, so the data gets its own tab, and keep Convert text to numbers
+> ticked so the amounts become numbers. Then the green Import data button."
+> "A new tab, duplicate_refunds, appears at the bottom-left. I'll scroll down: the last row is **111**, so 110 refunds
+> plus the header row, the same as the database."
 
-ACTION: next line → `SELECT pg_size_pretty(pg_relation_size('products_name_trgm_gin'));` → triple-click → Execute →
-Data Output.
+ACTION: click **A1** → **Insert** → **Pivot table** → **New sheet** → **Create**. Editor on the right: **Rows → Add →
+currency**; **Values → Add → amount** (SUM); **Values → Add → payment_id** (COUNTA).
 SAY:
-> "Next, the size. On the next line I'll type SELECT pg_size_pretty of pg_relation_size of the GIN index name, then
-> triple-click it and click Execute. I'll click the Data Output tab at the top-left of the results panel: the single
-> cell says {{26}} megabytes."
+> "A pivot table groups and totals data without formulas. I'll click cell A1, then the Insert menu at the top and Pivot
+> table. In the dialog I'll keep New sheet and click Create."
+> "The pivot table editor opens on the right side. Next to Rows I'll click Add and choose currency. Next to Values I'll
+> click Add and choose amount, summarized by SUM. Then Add again for payment_id, summarized by COUNTA, which counts the
+> refunds."
+> "The table shows **EUR 4,849.79 from 30 refunds, GBP 2,323.47 from 18, and USD 9,942.11 from 62**. I'll ignore the
+> Grand Total row, because it adds three currencies together."
 
-ACTION: triple-click line 1 (walnut EXPLAIN) → Execute.
+ACTION: click **E1** → `DB total`; E2:E4 → `4849.79`, `2323.47`, `9942.11`. **F1** → `Difference`; F2 →
+`=ROUND(B2-E2,2)` → select F2:F4 → **⌘D**.
 SAY:
-> "Now walnut again with the index in place. I'll scroll up to line 1 in the editor, triple-click it and click
-> Execute. In Data Output, the plan now has a Bitmap Index Scan on products_name_trgm_gin, which finds the candidate
-> rows, and above it a Bitmap Heap Scan that fetches only those rows. The Recheck Cond row matters: the index knows
-> which rows contain all four trigrams, but not whether they're next to each other in the right order, so
-> PostgreSQL checks each candidate against the real condition. The last row, Execution Time, is about {{0.7}}
-> milliseconds, compared with {{70}} before."
-
-ACTION: line 2 → Execute.
-SAY:
-> "Steel: I'll triple-click line 2 and click Execute. It still uses the primary-key Index Scan on the top rows, and
-> that's the right call. With 125,000 matches, using the trigram index would cost more than walking the table until
-> 50 turn up. The planner only uses an index when it's cheaper."
-
-ACTION: line 3 → Execute.
-SAY:
-> "Q X: triple-click line 3, Execute. The bottom of the plan still shows a Parallel Seq Scan. Two letters don't make
-> up a single trigram, so the index has nothing to look up, and the planner knows not to use it."
-
-ACTION: each line three times (triple-click → Execute ×3) → `-- GIN |` comment lines.
-SAY:
-> "Now the three timed runs with GIN. Walnut: line 1, Execute in the toolbar, three times, reading Execution Time on
-> the last row of Data Output: {{…}}, {{…}}, {{…}}. Steel: line 2, Execute three times: {{…}}… Q X: line 3, three
-> more: {{…}}… I'll type them as GIN comment lines under the queries."
-
-ACTION: `DROP INDEX products_name_trgm_gin;` → triple-click → Execute → Save File button.
-SAY:
-> "On a new line I'll type DROP INDEX products underscore name underscore trgm underscore gin, triple-click it and
-> click Execute. I'm dropping it so it can't affect the GiST test. Messages says DROP INDEX. Then I'll click the Save
-> File floppy disk, second from the left in the toolbar, to save my notes."
+> "Now the cross-check. In cell E1, to the right of the pivot, I'll type DB total, then the three totals from my SQL
+> comment in E2 to E4, in the same order as the pivot: euros, pounds, dollars."
+> "In F1 I'll type Difference, and in F2, equals ROUND of B2 minus E2, to two decimals. I round to cents because
+> spreadsheets store decimals in binary and can show a tiny leftover like 0.0000000001. I'll select F2 to F4 and press
+> Command D to fill down. All three are **0**: the sheet matches the database to the cent, so nothing was lost or
+> changed in the export."
 
 ---
 
-## Step 6: GiST trigram index
+## Step 6: summary, download, stop check
 
-ACTION: next line → GiST `CREATE INDEX` → triple-click → Execute → Messages tab.
-SAY (while it builds; use this time to talk):
-> "Step 6. On a new line I'll type the same CREATE INDEX, but named products underscore name underscore trgm
-> underscore gist, using gist, with gist underscore trgm underscore ops. I'll triple-click it and click Execute in the
-> toolbar."
-> "While it builds: GiST is a generalized search tree. Instead of a list per trigram, it stores a compressed
-> signature of each name's trigrams in a balanced tree. Those signatures are lossy, so it usually needs more
-> rechecking than GIN. But GiST can also order results by similarity, which would matter if we later added 'did you
-> mean' style fuzzy search."
-> "The Messages tab at the top-left of the results panel says {{3}} seconds, about one and a half times as long as
-> GIN. I'll add that as a comment."
-
-ACTION: size query for `products_name_trgm_gist` → Execute → Data Output.
+ACTION: click **A7** → `Summary` → Tab → B7: `100 affected orders; refunds EUR 4849.79 (30), GBP 2323.47 (18), USD 9942.11 (62)`.
 SAY:
-> "On the next line, the same size query with the GiST index name. Triple-click, Execute, then the Data Output tab at
-> the top-left of the results: {{79}} megabytes, about three times the GIN index."
+> "Step 6. A one-line summary for operations. In cell A7 I'll type Summary, press Tab to move to B7, and type: 100
+> affected orders, and the refunds per currency with their counts."
 
-ACTION: line 1 → Execute.
+ACTION (optional, 10 s): right-click the empty **Sheet1** tab at the bottom-left → **Delete**.
 SAY:
-> "Walnut: line 1, Execute. In Data Output there's a Bitmap Index Scan on the GiST index, and the last row says about
-> {{30}} milliseconds. Much better than {{70}} with no index, but much slower than GIN's {{0.7}}. A few rows up, Rows
-> Removed by Index Recheck shows the lossy signatures at work."
+> "The first tab, Sheet1 at the bottom-left, is empty, so I'll right-click it and choose Delete. That leaves just the
+> refund list and the summary."
 
-ACTION: line 2 → Execute.
+ACTION: **File** (top-left) → hover **Download** → **Microsoft Excel (.xlsx)** → click the download arrow (top-right).
 SAY:
-> "Steel: line 2, Execute. The top rows show the same primary-key Index Scan as before."
+> "To deliver it, I'll move up to the File menu at the top-left and click it, hover over Download near the middle of
+> the menu, and click Microsoft Excel in the submenu on the right. A download arrow appears in Chrome's toolbar at the
+> top-right. I'll click it: it lists **refund_summary.xlsx**, saved to Downloads."
 
-ACTION: line 3 → Execute → point at `Rows Removed by Index Recheck`.
-SAY (the key finding):
-> "Q X: line 3, Execute. This is the interesting one. In Data Output, the planner did choose the GiST index this
-> time, and the last row says {{170}} milliseconds, more than double the {{68}} with no index. I'll point at the
-> Rows Removed by Index Recheck row: {{499,960}}. With no trigram to match, the index can't rule anything out, so it
-> returned every row as a candidate and every row had to be rechecked. So this GiST index would make short searches
-> slower."
+**STOP CHECK: don't start the epilogue until all three are true:**
+- the download list shows **refund_summary.xlsx**;
+- **duplicate_refunds.csv** was saved to payments-task in Step 4;
+- the SQL file was saved with ⌘S, so its tab title has no star.
 
-ACTION: three timed runs per line → `-- GiST |` comment lines → `DROP INDEX products_name_trgm_gist;` → Execute →
-Save File.
 SAY:
-> "Three timed runs with GiST. Line 1, Execute three times: {{…}}… line 2: {{…}}… line 3: {{…}}… I'll type them as GiST
-> comment lines. Then on a new line, DROP INDEX for the GiST index, triple-click, Execute, and Messages says DROP INDEX.
-> Finally, I'll click the Save File floppy disk in the toolbar."
+> "Before I wrap up, I'll check the deliverables. The download list shows refund_summary.xlsx. duplicate_refunds.csv
+> and refund_investigation.sql are saved in the payments-task folder, and I saved the SQL file with Command S before I
+> left pgAdmin."
 
 ---
 
-## Step 7: Google Sheets, compare and decide
+## Epilogue (about 3 minutes, max 4:00; the mouse may rest, the sheet on screen)
 
-ACTION: Dock → Chrome.
-SAY:
-> "Step 7. I'll move right to the Dock and click the Chrome icon to go back to the sheet, compare all three setups
-> and decide."
+SAY (in your own words; cover all six points):
 
-ACTION: click F1 → headers across to M1 with Tab: `GIN run 1`, `GIN run 2`, `GIN run 3`, `GIN median`,
-`GiST run 1`, `GiST run 2`, `GiST run 3`, `GiST median`.
-SAY:
-> "I'll click cell F1, to the right of No index median in row 1, and type GIN run 1, then press Tab to move right.
-> Run 2, Tab, run 3, Tab, GIN median, Tab. Then the same four headers for GiST, ending at M1."
+> **Completion.** "To wrap up: the task is complete. The refund list has 110 refunds for 100 orders: 4,849.79 euros,
+> 2,323.47 pounds and 9,942.11 dollars. I verified it two ways. In the database, every affected order keeps exactly one
+> capture. In the sheet, the totals per currency match the database to the cent. The limitations are that this is
+> synthetic data, and I haven't reconciled it with the payment processor's settlement report."
 
-ACTION: click F2 → GIN timings in F2:H4; click J2 → GiST timings in J2:L4.
-SAY:
-> "Now the timings from the comment lines in pgAdmin on the left. I'll click cell F2 and type GIN's three walnut
-> runs with Tab between… then F3 for steel and F4 for Q X. Then I'll click cell J2 for the GiST runs…"
+> **Approach.** "My approach was to understand before fixing. I found the affected orders, then read one order's
+> attempts to see the cause, the new idempotency key on every retry, and only then wrote the refund rule."
 
-ACTION: drag-select E2:E4 → ⌘C → click I2 → ⌘V → click M2 → ⌘V.
-SAY:
-> "For the medians, I'll drag from E2 down to E4 to highlight the no-index median column and press Command C to copy
-> it. Then I'll click cell I2, under GIN median, and press Command V to paste, and click cell M2, under GiST median,
-> and press Command V again. Sheets moves the formula to the new columns by itself: clicking I2, the formula bar at
-> the top shows MEDIAN of F2 to H2."
+> **Challenges.** "The tricky part was the order of operations. If I had numbered every attempt before filtering out
+> failed ones, the list would have refunded 232 payments instead of 110, and 122 customers would have been refunded
+> their only real payment."
 
-ACTION: N1 `GIN speedup (x)`, O1 `GiST speedup (x)`; N2 `=E2/I2`, O2 `=E2/M2` → drag-select N2:O4 → ⌘D.
-SAY:
-> "Speedup is the no-index median divided by the indexed median. I'll click cell N1 and type GIN speedup, Tab, and in
-> O1, GiST speedup. In N2 I'll type equals E2 divided by I2, Tab, and in O2 equals E2 divided by M2, then Return. I'll
-> drag from N2 to O4 to highlight both columns and press Command D to fill down."
-> "Walnut is about {{100}} times faster with GIN and {{2}} times with GiST. Steel is about 1 with both, so no change.
-> For Q X, GIN is about 1 and GiST is {{0.4}}. Below one means slower, so GiST makes short searches more than twice
-> as slow."
+> **Quality.** "I'm confident in the list because the check is separate from the query that built it, and the
+> spreadsheet matches the database. The weak spot is anything outside this table, such as a refund someone already
+> made by hand in the processor's dashboard."
 
-ACTION: A6 `Index`, B6 `Size (MB)`, C6 `Build time (ms)`; A7 `GIN` + numbers; A8 `GiST` + numbers.
-SAY:
-> "Below the timings, a small cost table. I'll click cell A6 and type Index, Tab, Size in megabytes, Tab, Build time
-> in milliseconds. In A7, GIN: {{26}} megabytes and {{2,000}} milliseconds. In A8, GiST: {{79}} megabytes and {{3,100}}
-> milliseconds."
+> **Next time.** "Next, I'd fix the retry code so it reuses the original idempotency key, add an alert when any order
+> gets two captures, and reconcile these refunds against the processor's report before sending them."
 
-ACTION: A10 `Decision`, B10 your decision with the reason. A11 `Min search length`, B11 `3 characters`.
-SAY (adapt to what you measured):
-> "I'll click cell A10 and type Decision, then Tab to B10 and type my choice: {{GIN}}. It gave the fastest rare-term
-> search, the smallest index and the fastest build. GiST's one advantage, similarity ranking, isn't something this
-> search uses. In A11 I'll type Min search length, and in B11, 3 characters, because neither index helps two-letter
-> searches and GiST makes them slower."
-
-ACTION: File menu (top-left) → Download → Microsoft Excel (.xlsx) → point at the download arrow (top-right).
-SAY:
-> "To export the deliverable, I'll move the cursor up to the File menu at the top-left, under the sheet title, and
-> click it. I'll hover over Download near the middle of the menu, and in the submenu that opens on the right, click
-> Microsoft Excel, dot x l s x."
-> "A download arrow icon appears in Chrome's toolbar at the top-right, just left of the profile button. I'll click it:
-> it lists search_benchmark.xlsx, saved to my Downloads folder. That's the deliverable for my team's code review.
-> I'll click on the sheet to close that list."
-
----
-
-## Epilogue (about 3½ minutes, max 4:00; the mouse may rest, the sheet on screen)
-
-SAY (in your own words; cover all six points, using your real numbers):
-
-> **Completion.** "To wrap up: the task is complete. With the GIN trigram index, the rare-term search goes from about
-> {{70}} milliseconds to {{0.7}}. I verified it three ways: the plan shows a Bitmap Index Scan on the trigram index,
-> I compared medians of three runs rather than single timings, and the numbers in the sheet match my notes in
-> pgAdmin. The main limitations are synthetic data on one laptop with a warm cache, and I haven't measured the extra
-> cost the index adds to inserts and updates."
-
-> **Approach.** "My approach was to diagnose before fixing. The plan showed that the existing B-tree couldn't help a
-> leading-wildcard search, which pointed to trigram indexes. Then, instead of assuming GIN was better, I built both
-> GIN and GiST and measured speed, size and build time against three kinds of term."
-
-> **Challenges.** "The most surprising part was the two-letter search. With GiST, the planner chose the index and it
-> ended up slower than having no index, because it had to recheck every row. It was also interesting that the common
-> term never needed an index, because the LIMIT finds 50 matches almost immediately."
-
-> **Quality.** "I'm confident in the choice for this workload: GIN was faster, smaller and quicker to build. The
-> weaknesses are the extra storage and write overhead, and very short searches stay slow, which is why the
-> recommendation includes a three-character minimum."
-
-> **Next time.** "Next, I'd create the chosen index in production with CREATE INDEX CONCURRENTLY, so writes to the
-> table aren't blocked while it builds, prove the search results are exactly the same as before, and measure insert
-> and update performance with realistic search terms from real query logs."
-
-> **Insight.** "The key lesson for anyone less experienced: an index doesn't help every query. A wildcard at the
-> start defeats a normal B-tree, and very short terms defeat trigram indexes. So always read the execution plan, and
-> test different kinds of input, not just the one search you were asked about."
+> **Insight.** "The lesson for someone less experienced: find duplicates by the business key, here the order, not by
+> similar amounts. Filter before you number. And prove every customer pays exactly once before you refund anything."
 
 SAY:
-> "That completes the task. I'll move the cursor to the Dock on the right and click the TaskRecorder icon, just below
-> pgAdmin, to stop the recording."
+> "That completes the task. I'll move the cursor to the Dock on the right and click TaskRecorder, just below pgAdmin, to
+> stop the recording."
 
-ACTION: TaskRecorder → **Stop Recording** → don't quit; wait for **Idle**.
+ACTION: TaskRecorder → **Stop Recording**. Don't quit; wait for **Idle**.
 
 ---
 
 ## Bridge lines (use these instead of going silent)
-
-- While an index builds: *"While that builds: the index has to read all 500,000 names and break each one into
-  trigrams, so this is the slowest part."*
-- While the sheet loads: *"While that loads, the thing I'm watching for is whether the planner actually picks the
-  new index, not just whether the time goes down."*
-- Before switching apps: *"I'll move to the Dock on the right and click {{Chrome / pgAdmin}} to {{record these
-  numbers / try the next index}}."*
+- While typing a long query: *"This part filters to captured payments; next I group by order…"*
+- While the import runs: *"While that loads: the CSV has one row per refund, so the operations tool can process it
+  line by line."*
+- Before switching apps: *"I'll move to the Dock on the right and click {{Chrome / pgAdmin}} to {{build the summary /
+  check the numbers}}."*
 
 ## If something goes wrong (say it, fix it, check it)
-
-- Syntax error: *"The Messages tab says syntax error near {{…}}. I left out {{a comma / a bracket}}. I'll click
-  after {{…}} on line {{n}}, fix it, triple-click the line and click Execute again… and now it succeeds."*
-- **Nothing highlighted, so the whole file ran.** There are CREATE and DROP statements later in the file, so say so.
-  In the Object Explorer on the left, right-click **Indexes** under products → **Refresh** to see what exists, drop
-  anything that shouldn't be there, and rerun only the highlighted line. *"That ran the whole file instead of my
-  selection. I'll check the Indexes folder in the Object Explorer and put it back the way it was."*
-- `extension "pg_trgm" already exists`: *"The Messages tab says the extension is already enabled, so I'll carry on."*
-- `relation "products_name_trgm_gin" already exists`: drop it, recreate it, and read the build time from the new run.
-- Typo in the sheet: *"In cell {{C3}} I typed {{…}} instead of {{…}}. I'll click that cell, retype it and press Return,
-  and the median in column E updates."*
-- If anything shows your name, a personal account, Studio or Slack: **stop and re-record from the start.** Don't
-  narrate over it.
+- Syntax error: *"The Messages tab says syntax error near …; I left out {{a comma / a bracket}}. I'll fix it on line …,
+  highlight the query and click Execute again… and now it works."*
+- **Nothing highlighted, so the whole file ran:** *"That ran the whole file instead of my selection."* If it says
+  `relation "refund_list" already exists`, say so, run `DROP TABLE refund_list;`, then rerun the CREATE TABLE on its
+  own.
+- The check returns rows: read them aloud, fix the list query, `DROP TABLE refund_list;`, recreate it and rerun the
+  check.
+- Typo in the sheet: *"In cell {{E3}} I typed {{…}}. I'll click it, retype it and press Return, and the difference in
+  column F updates."*
+- Anything personal, Studio or Slack on screen: **stop and re-record from the start.** Don't narrate over it.
