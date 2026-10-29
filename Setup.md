@@ -1,476 +1,399 @@
-# Task 33g7c3d6: end-to-end steps (catalog search, pg_trgm GIN vs GiST)
+# Payments refund task: setup and recording run sheet
 
-Idea: [idea-draft.md](idea-draft.md) (v2, **APPROVED**). Rules: [task-instructions.md](task-instructions.md).
-Apps: **pgAdmin 4** + **Google Sheets**. Target recording: **about 40 minutes** (hard window 15:00–50:59).
-Task files: [33g7c3d6/](33g7c3d6/) (inputs go in `33g7c3d6/inputs/`).
+Idea: [../idea-payments-simple.md](../idea-payments-simple.md) (approved 2026-10-29). Rules: [../task-instructions.md](../task-instructions.md).
+Apps: **pgAdmin 4** and **Google Sheets**. Target: **about 30 minutes** (hard window 15:00–50:59).
 
-| Phase | What | Status |
-|---|---|---|
-| A | Get the idea approved | **DONE** |
-| B | One-time Mac setup (Recorder user, Xcode/Inspector, TaskRecorder, Dock/clock) | **DONE** |
-| C | Build the database and the two input files | **DONE** (inputs validated and loaded 2026-10-26; DB reset to the pre-recording state) |
-| D | Set up pgAdmin 4 and Google Sheets | to do |
-| E | Metadata.rtf, opening Goal doc, Studio pre-recording fields | to do (text ready below) |
-| F | Dry run, then reset the database | to do |
-| G | Pre-flight checklist (the 10 minutes before Start) | recording day |
-| H | The recording (run sheet with SQL and narration cues) | recording |
-| I | Stop and validate | after recording |
-| J | Build Deliverables.zip | after recording |
-| K | Upload, AutoQC, submit | after recording |
+Files and folders:
+- Input prompt: [gemini-prompt.md](gemini-prompt.md). The input lands in `payments/inputs/create_payments_db.sql`.
+- Database: `payments`, owner `backend_dev`, timezone UTC. It's created and empty, waiting for the input.
+- Shared folder (any macOS account can write to it): `/Users/Shared/payments-task/`. The working SQL file and the CSV
+  are saved here on camera.
+- After recording: `payments/outputs/` (Metadata.rtf, Deliverables.zip).
 
----
+Lessons carried over from the catalog task (all four takes):
+- **Used Apps** filled in TaskRecorder, and checked again right before Start.
+- **What + Where narration on every click.** Name the control, say where it is, and say the cursor movement. Never use
+  a bare "this" or "here".
+- **Save on camera.** Press Command S after every step. Export the CSV and the .xlsx **before** the epilogue, then do
+  the stop check.
+- Don't paste SQL or notes into the sheet.
 
-## Phase A: idea approved (DONE)
-
-### The approved Goal: paste this exact text in three places
-1. TaskRecorder → **Task Description**.
-2. The opening Google Docs document (only this paragraph, no Approval ID).
-3. Metadata.rtf → **Request**.
-
-Before using it, compare it against the Goal in Studio's pre-filled **Prompt/Description**. If Studio's text
-differs in any character, **Studio's version wins**: replace it here and everywhere else.
-
-```
-As a backend developer, I will fix a slow product-search query in a synthetic PostgreSQL catalog database using pgAdmin 4 and Google Sheets. The search matches any part of the product name with ILIKE '%term%', so the existing B-tree index on name cannot help. In pgAdmin 4, I will read the execution plans, then build and measure two trigram index options from the pg_trgm extension, GIN and GiST, against a rare term, a common term and a two-letter term, and confirm every search returns exactly the same rows as before. In Google Sheets, I will compare median timings, index sizes and build times to choose one index. I will deliver catalog_search_index.sql, with the chosen index, my measurements and a minimum search-length recommendation, and the benchmark spreadsheet for my team's code review.
-```
-
-### What the approval means for the rest of this file
-- **Record exactly what was approved:** both apps, all three terms, both index types, the equality checks, and
-  both deliverables. If anything has to change materially, use **Revise idea** and wait for re-approval
-  *before* recording.
-- **Never reuse or show the Approval ID** on screen.
-- **The epilogue is required:** this idea was approved after Oct 19, 2026 6 PM PT.
-- **Continue in the same Studio task.** It is now In Progress; don't create a new one.
+| Phase | What | Who | Status |
+|---|---|---|---|
+| A | Idea approved; check Studio's Goal | you | approved |
+| B | Input file with Gemini; load and validate | you, then me | **DONE 2026-10-29: loaded, all checks pass** |
+| C | Recorder account: pgAdmin, Sheets, Goal doc, practice | you | after B |
+| D | Metadata.rtf, Studio fields | me + you | after B |
+| E | Dry run, then reset | you, then me | before recording |
+| F | Pre-flight | you | recording day |
+| G | The recording | you | |
+| H | Validate, Deliverables.zip, upload | me, then you | after recording |
 
 ---
 
-## Phase B: one-time Mac setup
+## Phase A: the approved Goal
 
-### B1. Create a separate "Recorder" macOS user (do this: your username is your full name)
-Your login `amanverma` appears in Save/Open dialogs, file paths and the Finder sidebar. A full name is PII, and
-one frame is enough for rejection. The guide's fix is a separate account:
-1. System Settings → **Users & Groups** → **Add User** → **Administrator**, full name and account name
-   `Recorder`, any password. **Don't** sign in to iCloud.
-2. Keep your main account **logged in** (use fast user switching, not Log Out). Your Homebrew PostgreSQL
-   (`postgresql@17`, a launch agent under `amanverma`) keeps running and is reachable from Recorder on
-   `127.0.0.1:5432`.
-3. Keep Studio, Slack, the guidelines and this folder in your **main** account. Do the recording in **Recorder**.
-
-### B2. Inside the Recorder account (settings are per user, so redo them there)
-- **Desktop:** empty, no widgets. **Wallpaper:** a built-in Apple one.
-- **Do Not Disturb:** Focus → Do Not Disturb → People: None, Apps: None, Intelligent Breakthrough off.
-- **Clock:** System Settings → Menu Bar → Clock Options → **Display the time with seconds** ON.
-- **Dock:** System Settings → Desktop & Dock → Position **Left** (or Right), **Automatically hide** OFF,
-  **Show indicators for open applications** ON.
-- **Language:** English. **Cursor:** default size and color.
-- **Mac name:** already neutral ("MacBook Pro"), so nothing to do.
-
-### B3. Xcode and Accessibility Inspector
-- Xcode is already in `/Applications`. In Recorder, open it once and finish any first-run prompts.
-- Right-click Xcode in the Dock → **Open Developer Tool → Accessibility Inspector** → close its *window* with
-  the red button. Don't quit or minimize the app. The blue icon must keep a **dot** under it.
-
-### B4. TaskRecorder 2.4.4
-1. Download `TaskRecorder2.4.4.dmg` (Apple silicon) from the Studio card **2. Set up your tech** (in your main
-   account), and move the DMG to `/Users/Shared`.
-2. In Recorder: open the DMG from `/Users/Shared` → drag TaskRecorder to **Applications** (choose Replace if
-   asked).
-3. Open it. If macOS can't verify the developer: **Done** → System Settings → Privacy & Security → **Open
-   Anyway**. If it says *damaged* or *malware*, stop and post in #odin--helpdesk.
-4. Grant **Accessibility, Screen Recording, Microphone**. All three must be **green** in TaskRecorder. If one
-   won't stick: remove it with "−", re-add with "+", toggle on, then quit and reopen TaskRecorder.
-5. **10-second test:** start, switch between two apps, open a Save dialog, stop, and wait for **Idle**. Open
-   **Show Recordings** and check that `video.mp4` plays with audio, `screenshots/` has PNGs, and the
-   `.jsonl` files exist.
-
-### B5. Studio one-time checklist (main account)
-Card **2. One-time setup checklist**: answer **Yes, I did this step** for all 5 (Xcode, Accessibility
-Inspector, TaskRecorder 2.4.4, permissions, clock + Dock). Also answer the two **Before you start** dropdowns
-(your Mac meets all three requirements; Insightful is installed and running).
-
-### B6. Insightful
-- Run it (Workpuls.app, Project Odin) only during your **3 paid setup hours**. After those, the first task is
-  paid by milestones ($150 on submit, $250 at RFD), not hourly.
-- If it runs while you record, it must be minimized and its window never shown.
-
-### B7. Watch the required video
-On the task page: **Watch: How to Narrate Well** (required before the first task). Also worth watching:
-**During Recording** and the **Software & AI/ML** Golden Example.
+Compare Studio's approved Goal with the block below. **If it differs by even one character, Studio's version wins.**
+Use it in all three places: TaskRecorder's Task Description, the Goal document, and the Metadata.rtf Request.
+```
+As a payments backend engineer, I will find the orders that were charged more than once during a gateway timeout in a synthetic PostgreSQL payments database and prepare their refund list using pgAdmin 4 and Google Sheets. The checkout service retried captures with new idempotency keys, so the gateway did not block the duplicates. In pgAdmin 4, I will find the affected orders, build a refund list that keeps each order's first successful capture and skips failed retries, check that every affected order keeps exactly one capture, and export the list as duplicate_refunds.csv. In Google Sheets, I will total the refunds by currency, check the totals against the database, and deliver refund_summary.xlsx for the payments operations team.
+```
 
 ---
 
-## Phase C: database and input files (main account, Terminal)
+## Phase B: the input file (main account)
 
-### C1. Make the input files with Gemini
-Input files must be **self-created**, or made with **Gemini** (the only AI allowed for inputs). Route chosen:
-**Gemini**. Paste the prompt in [33g7c3d6/gemini-prompt.md](33g7c3d6/gemini-prompt.md) into Gemini (with your
-@mercor.expert account) and save the outputs to `33g7c3d6/inputs/`. That makes them **AI-generated file**
-inputs, and Final Notes must say exactly `AI-generated before recording`. The spec in C3 and C4 is what the
-prompt asks for.
+**B1 (you).** Open [gemini-prompt.md](gemini-prompt.md) and copy everything inside the box. In Gemini, signed in with
+@mercor.expert, paste it and send. Save the SQL it returns as `Mercor/Odin/payments/inputs/create_payments_db.sql`.
+Don't hand-edit it.
 
-### C2. A neutral database login (so pgAdmin never shows `amanverma`): DONE 2026-10-26
-Role `backend_dev` (LOGIN; local auth is trust, so no password) and database `catalog` (owned by it) exist.
-Your PostgreSQL superuser is `amanverma`, and pgAdmin shows the login name in tab titles. Create a neutral
-role and database, then build everything as that role:
-```sql
--- psql -d postgres   (as amanverma, once)
-CREATE ROLE backend_dev LOGIN PASSWORD 'pick-one';
-CREATE DATABASE catalog OWNER backend_dev;
-```
+**B2 (me).** I load it into `payments` as `backend_dev`.
 
-### C3. Input 1: `create_catalog_db.sql` (you write it)
-Requirements:
-- Runs in database `catalog` as `backend_dev`.
-- Table `products`: `id bigint primary key`, `name text not null`, `price numeric(10,2)` (a category column is
-  optional). About **500,000 rows**.
-- Names follow a pattern like `<Adjective> <Material> <Item> <CODE-1234>`, built from small **generic word
-  lists** with `generate_series` + `random()`. Call `setseed(...)` first so the data is reproducible. **No real
-  brands, people or emails.**
-- Plant the three test terms deliberately:
-  - **Rare term** (e.g. one material): about 50 to 250 rows.
-  - **Common term** (another material): about 20 to 30% of rows.
-  - **Two-letter term**: a letter pair that appears in only a few rows (e.g. a rare model-code prefix). Check
-    it doesn't occur inside other common words.
-- Create the B-tree index the team added earlier: `CREATE INDEX products_name_idx ON products (name);`
-- End with `VACUUM ANALYZE products;`
-- **Don't** create `pg_trgm`. `CREATE EXTENSION` happens on camera.
+**B3 (me).** These must match exactly. A throwaway copy built to the same spec gave these numbers.
 
-Run it: `psql -h 127.0.0.1 -U backend_dev -d catalog -f create_catalog_db.sql`
+| Check | Expected |
+|---|---|
+| Rows / distinct orders / failed rows | 10,107 / 9,850 / 147 |
+| Orders with 2+ captures, 14:00–14:30 UTC | 100 (10 with 3 captures: order ids 2010091–2010100) |
+| Refund list (keep the earliest capture) | 110 refunds, 100 orders |
+| Refunds per currency | EUR 30 · GBP 18 · USD 62. **Real file: EUR 4849.79 · GBP 2323.47 · USD 9942.11** |
+| Exactly-one check | 0 rows |
+| Number first, filter after (the trap) | 232 |
 
-### C4. Input 2: `catalog_search.sql` (you write it)
-The search API's query exactly as the idea describes it: a case-insensitive partial match on the name, first
-50 matches by id. It has this shape, with one sample term in it:
-`SELECT id, name, price FROM products WHERE name ILIKE '%<term>%' ORDER BY id LIMIT 50;`
-
-### C5. Verify the data behaves (these are checks, not input files)
-```sql
-SELECT count(*) FROM products;                                  -- ≈ 500000
-SELECT count(*) FROM products WHERE name ILIKE '%<rare>%';      -- ≈ 50–250
-SELECT count(*) FROM products WHERE name ILIKE '%<common>%';    -- ≈ 20–30%
-SELECT count(*) FROM products WHERE name ILIKE '%<xy>%';        -- small
-EXPLAIN (ANALYZE, BUFFERS) <catalog_search query with the rare term>;  -- note Execution Time
-```
-- The rare-term search should be clearly slow (tens to hundreds of ms). If not, add rows.
-- Note what the baseline plan looks like. With `ORDER BY id LIMIT 50` PostgreSQL may walk the primary key and
-  filter, or do a Seq Scan + Sort. Either way it reads nearly the whole table for the rare term, and it never
-  uses `products_name_idx`. Narrate whichever you actually see.
-
-### C6. Put the inputs where Recorder can open them
-Copy both files into `/Users/Shared/catalog-task/` (or Recorder's Documents). Keep the originals for
-Deliverables.zip.
+If anything is off, ask Gemini to fix that group, telling it which count is wrong. Save the new file and I'll check
+again.
 
 ---
 
-## Phase D: pgAdmin 4 and Google Sheets (Recorder account)
+## Phase C: the Recorder account
 
-### D1. pgAdmin 4
-1. Install it: the DMG from pgadmin.org, or `brew install --cask pgadmin4` from the main account. It goes in
-   `/Applications`. The license (PostgreSQL License) allows commercial use.
-2. Open it in Recorder and set a master password if asked.
-3. **Register → Server**:
-   - General: Name `Local PostgreSQL 17`.
-   - Connection: Host `127.0.0.1`, Port `5432`, Maintenance DB `catalog`, Username `backend_dev`, Save
-     password on.
-   - **Advanced → DB restriction: `catalog`** hides your `postgres`/`techops_*` databases from the tree.
-4. Expand catalog → Schemas → public → Tables → products → Indexes, and confirm only `products_pkey` and
-   `products_name_idx` exist.
-5. Practise, and confirm in your pgAdmin version:
-   - **Query Tool** (right-click `catalog` → Query Tool), **Open File**, **Execute** (▶ / F5), running only the
-     **selected** text, and **Save** / **Save As**.
-   - **Explain Analyze** button (Shift+F7). In its options dropdown turn on **Buffers**. Results appear in
-     the **Explain** tab → **Graphical** / **Analysis** / **Statistics**.
-   - Where build time shows: the **Messages** tab ("Query returned successfully in … msec").
-   - For exact timings, the typed `EXPLAIN (ANALYZE, BUFFERS) …` prints **Execution Time** on its last row in
-     Data Output.
+### C1. pgAdmin 4
+1. In the Object Explorer, right-click **Local Postgres 17** → **Disconnect Server**. Then right-click it again →
+   **Properties** → **Advanced** tab → **DB restriction**: replace `catalog` with `payments` → **Save** → reconnect.
+   The tree should now show only `payments`.
+2. **Downloads prompt** (so you can name the CSV): **pgAdmin 4 menu → Settings** (or Preferences) → **Miscellaneous →
+   File Downloads**. Turn on **Prompt for the download location?** and turn off **Automatically open downloaded file?**
+   → Save.
+3. **Practise the CSV export once** (this takes a minute; delete the test file afterwards):
+   - Open a Query Tool on `payments`. Run `SELECT * FROM payments LIMIT 5;`.
+   - In the toolbar just above the result grid, click **Save results to file**: the down-arrow icon, sixth from the
+     left, just left of the zig-zag graph icon.
+   - A save dialog should open. Name the file `test.csv`, choose `payments-task` (add `/Users/Shared/payments-task` to
+     the Finder sidebar first, so it shows in the **Where** menu) → **Save**.
+   - Open the file: the first line should be the column names. Delete `test.csv`.
+   - **If no dialog opens** and the file lands in Downloads under another name, tell me before recording.
+4. Close the Query Tool (choose **Don't save**). Collapse the tree to `payments → Schemas → public → Tables` → minimize.
 
-### D2. Google Sheets
-1. In Recorder, use a **fresh browser** (Safari, or install Firefox) with no imported data. Sign in to Google
-   with your **@mercor.expert** account only.
-2. Check the top-right account corner: it should show only your @mercor.expert identity (first name and initial
-   are fine).
-3. Practise in a scratch sheet:
-   - `=MEDIAN()`.
-   - **Insert → Chart** → Column chart, with a series per configuration. Under **Customize → Vertical axis**,
-     tick **Log scale**: no-index and GIN times differ by orders of magnitude, and a linear axis hides the small
-     bars.
-   - **File → Download → Microsoft Excel (.xlsx)**.
-
----
-
-## Phase E: Metadata.rtf, opening doc, Studio fields (do now: the idea is approved)
-
-### E1. Metadata.rtf (TextEdit is allowed only for this file)
-Download the template (https://drive.google.com/file/d/1_WThzOJgZzk_WcUdDtqO1QR4qYG1tbGa/view), open it in
-TextEdit, fill the three sections, **delete everything from "PLEASE DELETE THIS SECTION" down**, and save as
-`Metadata.rtf` in your main account.
-
-```
-Topology: pgAdmin 4 (LOOKUP) -> Google Sheets (CREATE) -> pgAdmin 4 (MODIFY) -> Google Sheets (MODIFY) -> pgAdmin 4 (CREATE)
-
-Request: As a backend developer, I will fix a slow product-search query in a synthetic PostgreSQL catalog database using pgAdmin 4 and Google Sheets. The search matches any part of the product name with ILIKE '%term%', so the existing B-tree index on name cannot help. In pgAdmin 4, I will read the execution plans, then build and measure two trigram index options from the pg_trgm extension, GIN and GiST, against a rare term, a common term and a two-letter term, and confirm every search returns exactly the same rows as before. In Google Sheets, I will compare median timings, index sizes and build times to choose one index. I will deliver catalog_search_index.sql, with the chosen index, my measurements and a minimum search-length recommendation, and the benchmark spreadsheet for my team's code review.
-
-Task Description:
-1. Run the catalog search query in pgAdmin 4 with a rare, a common and a two-letter term and record the baseline row counts and timings.
-2. Read the EXPLAIN ANALYZE plans to show the B-tree index on name is not used for a leading-wildcard ILIKE search, and save baseline results for each term.
-3. Record the baseline timings in a Google Sheets benchmark and calculate the medians.
-4. Enable pg_trgm in pgAdmin 4, build and measure a GIN trigram index, then a GiST trigram index (build time, size, plans, three timings per term).
-5. Compare medians, sizes and build times in Google Sheets, chart them, choose an index and download search_benchmark.xlsx.
-6. Re-create the chosen index with CREATE INDEX CONCURRENTLY in pgAdmin 4, prove every term returns the same rows as the baseline with EXCEPT checks, and save catalog_search_index.sql with the measurements, decision and three-character minimum recommendation.
-```
-The Topology must match the **actual** order you record. If you add an app visit, add it here too. Never show
-Metadata.rtf on screen.
-
-### E2. Opening Goal document
-A **Google Docs** document (in its own browser window in Recorder) containing **only the approved Goal
-paragraph** (the block in Phase A): no Approval ID, no other approval text. Name it something neutral like
-`Search index task`. Not Notes.app or TextEdit. Google Docs doesn't count as a
-task app, because it's only used for the opening.
-
-### E3. Studio pre-recording fields (main account)
-- **Before Recording (Task Plan)**: tick the confirm box when Metadata.rtf is ready, the Request matches the
-  Goal, and the inputs are clean.
-- **Inputs Used**: **AI-generated file** (made with Gemini before recording).
-- **Before Recording (Prepare)** → **Display**: choose the display and resolution you'll record on (the
-  built-in display) and keep it the same.
+### C2. Google Sheets (Chrome, @mercor.expert)
+1. Reuse the **Goal Document** Google Doc: replace its text with the Goal from Phase A, and nothing else.
+2. Create a new **blank** sheet and click "Untitled spreadsheet" at its top-left. Type `refund_summary` and press
+   Return. The tab must read **refund_summary - Google Sheets**.
+3. Practise, in a separate scratch sheet that you delete afterwards:
+   - **File → Import → Upload → Browse**, then pick any CSV. Set **Import location: Insert new sheet(s)** and
+     **Separator: Detect automatically**, and keep **Convert text to numbers** ticked → **Import data**.
+   - Click a data cell → **Insert → Pivot table** → **New sheet** → **Create**. In the editor on the right:
+     - **Rows → Add**: currency.
+     - **Values → Add**: amount, summarized by SUM.
+     - **Values → Add** again: payment_id, summarized by COUNTA.
+   - **File → Download → Microsoft Excel (.xlsx)**, and watch for the download arrow at the top-right.
+4. Delete the scratch sheet and empty Drive's trash. In Finder → Downloads, delete any old `search_*`, `test*` and
+   `refund_*` files.
+5. Chrome should have **two tabs only**: Goal Document and refund_summary. Close the "Continue where you left off" bar.
 
 ---
 
-## Phase F: dry run, then reset
+## Phase D: Metadata.rtf and Studio fields
 
-1. Do the whole of Phase H once **without recording** (or as a throwaway test recording), timing yourself with
-   the menu-bar clock. If it's over 45 minutes, shorten the narration, not the steps.
-2. Check that the plans behave as expected:
-   - GIN gives a **Bitmap Index Scan** for the rare term.
-   - The common term keeps a plan without the trigram index.
-   - The two-letter term gets no benefit.
-   If not, adjust the data in C3 and redo C5.
-3. **Reset before the real take** (main account or pgAdmin):
-```sql
-DROP INDEX IF EXISTS products_name_trgm_gin;
-DROP INDEX IF EXISTS products_name_trgm_gist;
-DROP TABLE IF EXISTS baseline_rare, baseline_common, baseline_short;
-DROP EXTENSION IF EXISTS pg_trgm;
-VACUUM ANALYZE products;
-```
-4. Delete any dry-run `catalog_search_index.sql`, empty the practice sheet (keep one **blank** spreadsheet), and
-   clear browser history and downloads in the Recorder browser.
+- **Metadata.rtf (me, DONE):** it's at `payments/outputs/Metadata.rtf`:
+  - Request = the Goal;
+  - Topology `pgAdmin 4 (CREATE) -> Google Sheets (CREATE)`;
+  - six task-description lines.
+
+  I'll update the Topology after recording if the app order changes. It's never shown on screen and never goes in the
+  zip.
+- **Studio (you):**
+  - Before Recording (Task Plan): tick it.
+  - **Inputs Used: AI-generated file**.
+  - Display: the built-in display at your recording resolution.
+  - Final Notes later: `AI-generated before recording`.
 
 ---
 
-## Phase G: pre-flight (the 10 minutes before Start Recording)
+## Phase E: dry run, then reset
 
-Main account:
-- [ ] Studio, Slack, the guidelines, Metadata.rtf and this folder are closed or at least not visible in Recorder.
-  Switch to Recorder.
+1. Do Phase G once, unrecorded, timing it with the menu-bar clock. If it runs much over 35 minutes, trim the talk, not
+   the steps.
+2. Tell me. I'll run `DROP TABLE IF EXISTS refund_list;` and empty `/Users/Shared/payments-task/`.
+3. You: delete the dry-run sheet's contents. The easiest way is to delete the sheet, create a new one and title it
+   `refund_summary` again. Empty Drive's trash and clear Downloads.
+
+---
+
+## Phase F: pre-flight (the 10 minutes before Start)
+
+Main account: Studio, Slack, the guidelines, Metadata.rtf and this file are closed. Switch to Recorder.
 
 Recorder account:
-- [ ] Mac on **power**; at least 35 GB free; quiet room; **Do Not Disturb ON**.
-- [ ] **UI change for this recording:** e.g. turn on **Dark Mode** or change the accent color (at least one, every
-  recording).
-- [ ] Dock left/right with indicators; clock with seconds; default cursor.
-- [ ] **Accessibility Inspector** running, window closed, dot under its icon.
-- [ ] Quit everything else (⌘Q). ⌘Tab should show only pgAdmin 4, the browser, TaskRecorder and Accessibility
-  Inspector.
-- [ ] **pgAdmin 4**: connected to `Local PostgreSQL 17`, tree expanded to `products → Indexes`, Query Tool open
-  with `catalog_search.sql` loaded (not run), window positioned → **minimize**.
-- [ ] **Browser**: blank Google Sheet open, titled `search_benchmark` (so the download is named right),
-  @mercor.expert account, no other tabs → **minimize**.
-- [ ] **Opening doc**: the Google Docs window with only the Goal, visible behind TaskRecorder.
-- [ ] Check the account corner of every visible app; no personal name, photo or email anywhere.
-- [ ] **TaskRecorder**: permissions green; mic selected and the level bar goes green on a test sentence; correct
-  display; **Task Description** = the approved Goal from Phase A (pasted exactly, no link or path); **Used Apps** = `pgAdmin 4`,
-  `Google Sheets` (exactly as in Studio). Clear anything left from earlier tests.
-  *If TaskRecorder only lets you pick installed apps and Google Sheets isn't one, ask @Maven in #odin--helpdesk
-  how to list a browser-based app before recording.*
+- [ ] Mac on power, quiet room, **Do Not Disturb ON**.
+- [ ] **One UI change** compared with the catalog recordings, for example a new wallpaper (they all used the Golden
+  Gate one) or a different accent colour.
+- [ ] Dock on the right side, indicators on, clock with seconds, default cursor.
+- [ ] **Accessibility Inspector** running with its window closed. **Xcode quit.**
+- [ ] ⌘Tab shows only pgAdmin 4, Chrome, TaskRecorder and Accessibility Inspector.
+- [ ] **pgAdmin 4**: connected, tree at `payments → … → Tables` (only `payments`, **no** `refund_list`), no Query Tool
+  open → minimized.
+- [ ] **Chrome**: Goal Document tab + `refund_summary` tab (blank, titled) → the Goal Document tab in front.
+- [ ] `/Users/Shared/payments-task/` is empty. Downloads has no `refund_*` or `duplicate_*` files.
+- [ ] **TaskRecorder**: Task Description = the Goal; **Used Apps = `pgAdmin 4`, `Google Sheets`**. Look at Used Apps
+  again as the very last thing before Start.
 
 ---
 
-## Phase H: the recording (run sheet)
+## Phase G: the recording (about 30 minutes)
 
-Golden rules for the whole take:
-- **Narrate what + where + why**, with the cursor on what you name.
-- **Pause about 1 second after each click.**
-- **Say every keyboard shortcut out loud.**
-- **No silence over 45 seconds**: the GiST build may take a while, so explain trigrams while it runs.
-- **No typing burst over 45 seconds; total typing ≤ 35%.**
-- **Never show** Studio, Slack, Insightful or Metadata.rtf. **No AI of any kind.**
-- **Windows:** one window in ordinary Fill, or two side by side. Never Full Screen. Don't let overlap cover the
-  work.
+**Screen map** (the same layout as the catalog task):
+- **Dock** on the right edge. **Chrome** is the red, yellow and green circle; **pgAdmin 4** is the blue elephant just
+  below it; **TaskRecorder** is just below pgAdmin.
+- **Window buttons**: three circles at each window's top-left. Yellow (the middle one) is Minimize.
+- **pgAdmin**:
+  - **Object Explorer** down the left side.
+  - **Query Tool toolbar** above the editor. The **floppy disk** (Save File), second from left, has a small down
+    arrow beside it with **Save As**. **Execute** is the **white play triangle**, just right of the grey square Stop
+    button.
+  - **Results panel** in the lower half, with the **Data Output / Messages** tabs at its top-left. The status bar at
+    the bottom shows **Total rows** and **Query complete**.
+  - **Save results to file**: the down-arrow icon, sixth from the left in the toolbar right above the result grid.
+- **Sheets**:
+  - Title and the **File / Edit / … / Insert** menus at the top-left.
+  - The **Name box** at the left end of the formula bar.
+  - Sheet tabs at the bottom-left.
+  - The **download arrow** in Chrome's toolbar at the top-right, after a download.
 
-### 0:00–0:20 Intro
-- Click **Start Recording** → **minimize TaskRecorder immediately**.
-- With the Goal doc visible, say only: *"I will be beginning my task soon. Here is the workflow I have in mind."*
-- Minimize the Goal doc window.
+**Pattern for every click:** "I'll move the cursor [direction] to [control], the [shape or colour] in the [area], and
+click it to [why]."
 
-### Step 1: baseline searches in pgAdmin 4 (about 4 min)
-- Bring up pgAdmin 4 from the Dock.
-- Walk the tree: point at `products` → **Indexes** → `products_name_idx`. *"The team already added a B-tree
-  index on name."*
-- In the Query Tool, read `catalog_search.sql` aloud in plain terms. On first use, say what the prepared data
-  is, without naming any AI tool or inventing a source: *"The catalog database is a synthetic test copy of
-  500,000 product names that I prepared for this test. It contains no real customer data and no copyrighted
-  material."*
-- Make three copies of the query, one each for the **rare**, **common** and **two-letter** terms. Say why you
-  picked each one: a selective search, a broad search, and a term too short for trigrams.
-- Select each query and click **Execute**. Point at the row count and the "Query complete" time.
+### Intro (under 20 s)
+Goal Document visible. Click **Start Recording**, then minimize TaskRecorder.
+> "I will be beginning my task soon. Here is the workflow I have in mind."
 
-### Step 2: read the plans (about 4 min)
-- Select the rare-term query → **Explain Analyze** button (Buffers on) → **Explain** tab → **Graphical**.
-- Hover each node and name it. Expect **Limit → Gather Merge → Sort → Parallel Seq Scan** (2 workers),
-  with "Rows Removed by Filter" around 166k per worker. Show that `products_name_idx` is **not** used.
-- **Why:** *"A B-tree is sorted by the start of the string. `ILIKE '%walnut%'` can start anywhere, so the index
-  can't narrow the search, and PostgreSQL reads the whole table and filters every row."*
-- Point at the **Buffers** and actual-rows numbers.
-- Repeat briefly for the common term: *"Fast already, because 50 matches turn up early."*
+Minimize Chrome: *"I'll move to the top-left corner of the Chrome window and click the yellow Minimize button, the
+middle of the three circles."*
 
-### Step 3: save baselines and time them (about 5 min)
+### Step 1: find the orders charged more than once (pgAdmin, about 4 min)
+
+DO:
+1. Dock → pgAdmin.
+   > "Step 1. I'll move the cursor right to the Dock on the right edge of the screen and click pgAdmin 4, the blue
+   > elephant just below Chrome."
+2. Object Explorer: expand `payments → Schemas → public → Tables → payments → Columns`, and move the cursor down the
+   columns.
+   > "On the left in the Object Explorer, I'll expand the payments database down to Tables, then the payments table and
+   > its Columns. Each row is one capture attempt: an order id, a customer code, the amount and currency, a status of
+   > captured or failed, the idempotency key the checkout service sent, and the time."
+   > "This is a synthetic test copy of our payments table with about ten thousand rows, prepared before this session.
+   > There's no real customer data in it."
+3. Right-click the `payments` **database** → **Query Tool**. Then use the down arrow next to the floppy disk → **Save
+   As**: name `refund_investigation.sql`, Where = `payments-task` → the blue **Save** button.
+   > "I'll right-click the payments database in the tree and choose Query Tool to open an SQL editor. Before I write
+   > anything, I'll save it: in the toolbar above the editor, I'll click the small down arrow right of the floppy-disk
+   > Save button, choose Save As, name it refund underscore investigation dot sql, pick the payments-task folder in the
+   > Where menu, and click the blue Save button at the bottom-right. The tab title at the top now shows the file name."
+4. Type and run. **To run one query:** highlight the whole query, then click **Execute** and say where it is.
+   For a one-line query, triple-click the line. For a longer one, drag from its first word to the semicolon. With
+   nothing highlighted, pgAdmin runs the whole file, including the CREATE TABLE.
 ```sql
-CREATE TABLE baseline_rare   AS <rare query>;
-CREATE TABLE baseline_common AS <common query>;
-CREATE TABLE baseline_short  AS <two-letter query>;
+SELECT count(*) AS attempts, count(DISTINCT order_id) AS orders FROM payments;
 ```
-- *"These saved results let me prove the index doesn't change what users see."*
-- Time each term 3 times with `EXPLAIN (ANALYZE, BUFFERS) <query>`, reading **Execution Time** on the last row.
-  Say each number aloud, because you'll type it into the sheet next.
-- Mention cache effects: *"The first run can be slower because pages aren't cached yet, which is why I'll use
-  the median."*
-
-### Step 4: Google Sheets benchmark (about 3 min)
-- Bring up the browser and the blank `search_benchmark` sheet. Arrange it side by side with pgAdmin if
-  that's useful.
-- Layout:
-  - Column A: `Term` (rare / common / two-letter).
-  - Columns B–D: `No index run 1–3`, then E: `No index median`.
-  - The same pattern later for GIN (F–I) and GiST (J–M).
-  - A small table below for **Index | Size | Build time**.
-- Enter the 9 baseline timings in short bursts. In E, use `=MEDIAN(B2:D2)` and fill it down by dragging the
-  handle.
-
-### Step 5: GIN trigram index (about 6 min)
+EXPECT: **10,107 attempts, 9,850 orders**.
+> "There are more attempts than orders. A few extra are normal, when a card is declined and the customer tries again.
+> The problem is the gateway timeout between 14:00 and 14:30 UTC, so I'll look inside that window."
+5. Type in two bursts, then run:
 ```sql
-CREATE EXTENSION pg_trgm;
-CREATE INDEX products_name_trgm_gin ON products USING gin (name gin_trgm_ops);
-SELECT pg_size_pretty(pg_relation_size('products_name_trgm_gin'));
+SELECT order_id, count(*) AS captures
+FROM payments
+WHERE status = 'captured'
+  AND created_at >= '2026-10-14 14:00+00' AND created_at < '2026-10-14 14:30+00'
+GROUP BY order_id
+HAVING count(*) > 1
+ORDER BY captures DESC, order_id;
 ```
-- **Explain:** *"pg_trgm breaks text into three-character pieces, so 'walnut' becomes 'wal', 'aln', 'lnu' and
-  so on. GIN is an inverted index from each trigram to the rows containing it, so a substring search can look up
-  the pieces instead of reading every row."*
-- Point at the **Messages** tab for the build time, then the size result.
-- Explain Analyze each term:
-  - **Rare:** Bitmap Index Scan on `products_name_trgm_gin` → Bitmap Heap Scan (with **Recheck**, because the
-    index finds candidates and PostgreSQL confirms the real match).
-  - **Common:** the planner keeps a plan without the index (*"too many matches; walking the table finds 50
-    quickly"*).
-  - **Two-letter:** no benefit (*"two letters can't form a trigram, so the index has nothing to look up"*).
-- Time each term 3 times, then `DROP INDEX products_name_trgm_gin;`
+EXPECT: **Total rows 100** at the bottom-left. The first 10 rows (2010091–2010100) show **3** captures; the rest show 2.
+> "I count only captured rows, because a failed attempt never took money. In the status bar at the bottom-left,
+> Total rows says 100: a hundred orders were charged more than once, and the first ten rows in Data Output were charged
+> three times."
 
-### Step 6: GiST trigram index (about 5 min)
+**⌘S** (*"Command S to save the file"*).
+
+### Step 2: show the retry pattern on one order (about 3 min)
+
+DO: double-click the first order id in Data Output (2010091) → ⌘C. Type, paste the id and run:
 ```sql
-CREATE INDEX products_name_trgm_gist ON products USING gist (name gist_trgm_ops);
-SELECT pg_size_pretty(pg_relation_size('products_name_trgm_gist'));
+SELECT id, order_id, status, amount, currency, idempotency_key, created_at
+FROM payments
+WHERE order_id = 2010091
+ORDER BY created_at;
 ```
-- Narrate during the build: *"GiST stores compressed trigram signatures in a balanced tree. It's lossy, so it
-  needs more rechecking, but it also supports similarity ordering, which GIN can't."*
-- Do the same measurements as Step 5: build time, size, plans, 3 timings per term. Then
-  `DROP INDEX products_name_trgm_gist;`
-- **Watch the two-letter term here (the dry run showed this):** with GiST, the planner *does* use the index for
-  `qx`, and it's **slower than having no index**. The Bitmap Index Scan returns all 500,000 rows and
-  **Rows Removed by Index Recheck ≈ 499,960**. Point at that line. It's the strongest evidence for the
-  three-character minimum, and a real difference between GIN (whose planner avoided the index) and GiST.
+EXPECT: **3 captured rows**, the same amount, seconds apart, **three different idempotency keys**.
+> "I'll double-click the first order id in Data Output and press Command C to copy it, then paste it into the WHERE
+> line with Command V. Three captures of the same order, 217.38 dollars each, within about half a minute. Now the
+> idempotency_key column: every attempt has a different key. The gateway only blocks a repeat that reuses a key, so it
+> treated these as three separate payments. The root cause is the retry creating a new key instead of reusing the
+> original. Today's job is the cleanup."
 
-### Step 7: compare and decide in Google Sheets (about 5 min)
-- Enter the GIN and GiST timings, medians, sizes and build times.
-- Add `Speedup = No-index median / GIN median` (and the GiST equivalent) for the rare term.
-- **Insert → Chart** → Column chart of the three median columns by term → **Customize → Vertical axis → Log
-  scale**. Explain why you chose log scale.
-- Write a **Decision** cell based on **your measured numbers** (e.g. faster rare-term search vs size and build
-  cost, and whether you need similarity ranking). Don't decide in advance.
-- **File → Download → Microsoft Excel (.xlsx)** gives `search_benchmark.xlsx`. Say where it was saved, and don't
-  click the Dock's Downloads stack.
+**⌘S**.
 
-### Step 8: final index, equality proof, deliverable SQL (about 6 min)
+### Step 3: build the refund list (about 6 min)
+
+SAY before typing:
+> "Step 3. The rule: number each order's successful captures by time with ROW_NUMBER, keep number one, the first
+> capture, and refund number two and above. I filter to captured rows first and number them second. If I numbered every
+> attempt, a failed first attempt would take number one, and I'd refund the customer's only real charge."
+
+DO (optional, about 30 s, shows why the order matters):
 ```sql
-CREATE INDEX CONCURRENTLY products_name_trgm_gin ON products USING gin (name gin_trgm_ops);  -- or the GiST form if that won
+SELECT count(*) AS would_refund
+FROM (SELECT p.*, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY created_at, id) AS rn
+      FROM payments p) c
+WHERE rn > 1 AND status = 'captured';
 ```
-- *"In production I'd build it CONCURRENTLY so writes to products aren't blocked while it builds."*
-- Equality check for each term (must return **0**):
-```sql
-SELECT count(*) FROM (
-  (SELECT * FROM baseline_rare EXCEPT (<rare query>))
-  UNION ALL
-  ((<rare query>) EXCEPT SELECT * FROM baseline_rare)
-) diff;
-```
-  Repeat for `baseline_common` and `baseline_short`. *"Zero rows in both directions means the index changed the
-  speed, not the results."*
-- **Save As** the Query Tool contents as `catalog_search_index.sql`. Write it in short bursts, as comment
-  sections with **your** numbers:
-  1. The search query.
-  2. The baseline plan summary + median per term.
-  3. GIN: build time, size, plan per term, medians.
-  4. GiST: the same.
-  5. Decision + reasoning.
-  6. Recommendation: require at least 3 characters in the search box (the two-letter term evidence).
-  7. Final `CREATE INDEX CONCURRENTLY` statement.
-  8. The three equality checks + "returned 0".
-- Save. Scroll through the saved file once on camera and point at each section.
+EXPECT: **232**.
+> "Numbering first would refund 232 payments instead of 110. The extra 122 are customers whose first attempt failed,
+> and each of them would end up paying nothing."
 
-### Step 9: finish and epilogue (target 3–4 min, max 4:00; the mouse may rest)
-- Show the saved `catalog_search_index.sql` and the downloaded `search_benchmark.xlsx`, and confirm the results.
-- Epilogue, in your own words:
-  1. **Completion:** how you verified it (zero-row EXCEPT checks, plan shows the trigram index, medians);
-     limitations (synthetic data, a single machine, warm cache).
-  2. **Approach:** why you measured both GIN and GiST instead of guessing.
-  3. **Challenges:** what surprised you (e.g. the common term not using the index).
-  4. **Quality:** how solid the result is; weaknesses (index size, slower writes).
-  5. **Next time:** test write and insert overhead, more terms, production-like data.
-  6. **Insight:** *"Indexes don't help every query. A leading wildcard defeats a B-tree, and very short
-     search terms defeat trigrams, so check the plan, not just the timing."*
-- Say *"That completes the task."* → bring up TaskRecorder → **Stop Recording**.
+DO: type in 2–3 bursts, run:
+```sql
+CREATE TABLE refund_list AS
+SELECT id AS payment_id, order_id, customer_id, amount, currency
+FROM (
+  SELECT p.*, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY created_at, id) AS rn
+  FROM payments p
+  WHERE status = 'captured'
+) c
+WHERE rn > 1;
+```
+EXPECT: click the **Messages** tab at the top-left of the results panel: **SELECT 110**.
+> "The Messages tab, top-left of the results panel, says SELECT 110: one refund for each of the 90 double charges and
+> two for each of the 10 triple charges. The id breaks ties if two captures share a timestamp."
+
+**⌘S**.
+
+### Step 4: check, total, export (about 5 min)
+
+DO:
+1. Type and run the check:
+```sql
+SELECT p.order_id, count(*) - count(r.payment_id) AS captures_left
+FROM payments p
+LEFT JOIN refund_list r ON r.payment_id = p.id
+WHERE p.status = 'captured'
+  AND p.order_id IN (SELECT order_id FROM refund_list)
+GROUP BY p.order_id
+HAVING count(*) - count(r.payment_id) <> 1;
+```
+EXPECT: **0 rows**.
+> "For every affected order, its captures minus its planned refunds must be exactly one. This query lists any order
+> where that isn't true. Data Output is empty and Total rows says zero, so every customer ends up paying exactly once."
+2. Totals:
+```sql
+SELECT currency, count(*) AS refunds, sum(amount) AS refund_total
+FROM refund_list
+GROUP BY currency
+ORDER BY currency;
+```
+EXPECT: EUR 30, GBP 18, USD 62 refunds, with your amounts.
+> "I total per currency, because euros, pounds and dollars can't be added together."
+
+Type a comment line under it with the numbers on screen. With this data they are `-- DB totals: EUR 4849.79 | GBP 2323.47 | USD 9942.11`.
+Then **⌘S**.
+3. Export:
+```sql
+SELECT * FROM refund_list ORDER BY order_id, payment_id;
+```
+EXPECT: Total rows **110**. Then click **Save results to file** in the toolbar right above the grid (down arrow, sixth
+from left) → name `duplicate_refunds.csv`, Where = `payments-task` → **Save**.
+> "I'll move the cursor to the toolbar just above the result grid and click Save results to file, the down-arrow icon,
+> sixth from the left. In the save dialog I'll name it duplicate underscore refunds dot csv, choose the payments-task
+> folder in the Where menu, and click Save at the bottom-right. That's the file operations will feed to the refund
+> tool."
+
+**⌘S** once more, then minimize pgAdmin (yellow button, top-left of its window).
+
+### Step 5: Google Sheets, import, pivot, cross-check (about 7 min)
+
+DO:
+1. Dock → Chrome → the `refund_summary` tab at the top.
+   > "Step 5. I'll move right to the Dock and click Chrome, the red, yellow and green circle just above pgAdmin. At the
+   > top of the window I'll click the second tab, refund_summary, my blank sheet."
+2. **File** (top-left) → **Import** → the **Upload** tab → blue **Browse** button → `payments-task` →
+   `duplicate_refunds.csv` → **Open**. Set **Import location: Insert new sheet(s)** and keep **Convert text to
+   numbers** ticked → the green **Import data** button.
+   EXPECT: a new tab `duplicate_refunds` at the bottom-left, with **111 rows** (a header plus 110).
+   > "Row 111 is the last one: 110 refunds plus the header, the same as the database."
+3. Click A1 → **Insert** menu → **Pivot table** → **New sheet** → **Create**. In the pivot editor on the right:
+   **Rows → Add → currency**; **Values → Add → amount** (SUM); **Values → Add → payment_id** (COUNTA).
+   EXPECT: EUR / GBP / USD rows with SUM and COUNTA, plus a Grand Total row.
+   > "In the pivot table editor on the right side, under Rows I'll click Add and pick currency. Under Values I'll add
+   > amount, summarized by SUM, then payment_id, summarized by COUNTA."
+4. Cross-check: E1 `DB total`, then E2:E4 typed from your comment line (in the pivot's order: EUR, GBP, USD). F1
+   `Difference`, F2 `=ROUND(B2-E2,2)` → select F2:F4 → **⌘D**. (Rounding hides tiny leftovers like 1E-12, which
+   Sheets can show when it subtracts decimal numbers.)
+   EXPECT: **0** in all three.
+   > "Each currency's total in the sheet minus the database total. All three are zero, so nothing was lost in the export.
+   > I ignore the Grand Total row because it mixes currencies."
+
+### Step 6: summary and download (about 2 min)
+
+DO:
+1. A7 `Summary`, B7 `100 affected orders; refunds EUR 4849.79 (30), GBP 2323.47 (18), USD 9942.11 (62)`.
+   Optional: right-click the empty **Sheet1** tab → **Delete**. Reference layout:
+   [reference/refund_summary-reference.xlsx](reference/refund_summary-reference.xlsx). It's Claude-made, so never
+   import it. All the queries in order: [queries-in-order.sql](queries-in-order.sql).
+2. **File → Download → Microsoft Excel (.xlsx)** → point at the download arrow at the top-right → click it to show
+   `refund_summary.xlsx`.
+   > "I'll move up to the File menu at the top-left, hover over Download and click Microsoft Excel. The download arrow
+   > at the top-right of Chrome now lists refund_summary.xlsx."
+
+**STOP CHECK (say it, point at each one):**
+> "Before I wrap up, I'll check the deliverables. The sheet tab at the top says refund_summary, and the download list
+> shows refund_summary.xlsx. duplicate_refunds.csv and refund_investigation.sql are saved in the payments-task folder,
+> and the SQL file was saved with Command S, so its tab title has no star."
+
+### Epilogue (about 3 min, max 4:00; the mouse may rest)
+In your own words, covering all six points with your real numbers:
+1. **Completion:** 110 refunds for 100 orders. Every affected order keeps exactly one capture (0 rows), and the sheet
+   matches the database per currency. Limitations: synthetic data, and not reconciled with the processor's
+   settlement report.
+2. **Approach:** I found the affected orders first, read one order's attempts to understand the cause, then wrote the
+   rule.
+3. **Challenges:** the order of operations. Numbering before filtering would have refunded 122 customers' only payment.
+4. **Quality:** I'm confident, because the check is independent of the query that built the list. The weak spot is
+   refunds made outside this table.
+5. **Next time:** fix the retry so it reuses the idempotency key, add an alert for an order with two captures, and
+   reconcile with the processor.
+6. **Insight:** deduplicate on the business key (the order), filter before you number, and prove each customer pays
+   exactly once before refunding.
+
+> "That completes the task. I'll move to the Dock on the right and click TaskRecorder, just below pgAdmin, to stop the
+> recording."
+
+Click **Stop Recording**. Don't quit; wait for **Idle**.
+
+### If something goes wrong (say it, fix it, check it)
+- A typo error: *"The Messages tab says syntax error near …; I'll fix the spelling on line … and run it again."*
+- The check returns rows: read them aloud. The list query is different from the one above. Fix it, run
+  `DROP TABLE refund_list;`, recreate it and rerun the check.
+- `relation "refund_list" already exists`: run `DROP TABLE refund_list;` and recreate it.
 
 ---
 
-## Phase I: stop and validate
-
-1. After **Stop Recording**, don't quit. Wait for **Stopping → Archiving → Idle**.
-2. **Show Recordings** → the newest `recording_TIMESTAMP` folder and `recording_TIMESTAMP.zip`. **Don't rename,
-   edit or re-zip.**
-3. The folder must contain `screenshots/` (PNGs), `video.mp4`, `frames.jsonl`, `ax.jsonl`, `input.jsonl`,
-   `processes.jsonl` and `recording.log`.
-4. Open `video.mp4` in QuickTime and check the start, middle and end: picture OK, narration audible, nothing
-   cut off. Length must be **15:00–50:59**.
-5. **Screenshot ratio:** the PNG count divided by the video seconds must be **> 0.5**. In Terminal:
-   `ls <folder>/screenshots | wc -l` and `mdls -name kMDItemDurationSeconds <folder>/video.mp4`.
-6. Watch for PII (names, paths, account corners), Studio/Slack/Insightful/Metadata on screen, silences over 45
-   seconds, and swearing. **If any of these happened, re-record. Never edit the video.**
-
----
-
-## Phase J: Deliverables.zip
-
-1. Make a folder containing (keep the extensions):
-   - `input 1 - create_catalog_db.sql`
-   - `input 2 - catalog_search.sql`
-   - `final output 1 - catalog_search_index.sql`
-   - `final output 2 - search_benchmark.xlsx`
-   *(The guide asks for "input 1 / final output 1" labels. Keeping the original name after the label keeps them
-   matching the approved idea.)*
-2. Select the files → right-click → **Compress** → rename the result to `Deliverables.zip`.
-3. Open the zip and check all 4 files are there and open. **Metadata.rtf must not be inside.**
-
----
-
-## Phase K: upload and submit (main account, Studio task 33g7c3d6)
-
-1. Upload **Metadata.rtf** (its own field), **video.mp4** (the separate copy from the recording folder),
-   **recording_TIMESTAMP.zip** (unmodified) and **Deliverables.zip**.
-2. Run both AutoQCs: **Files & Recording** and **Narration**.
-   - **Major** flags block submission: fix them (for a file problem, re-upload the corrected file; no
-     re-record) or **Dispute** with a reason and timestamps.
-   - **Minor** flags are advice.
-3. Do the manual checks one by one, and tick the **Task Checklist + PII** confirmation after opening both links.
-4. Tick the **epilogue** checkbox (you recorded one).
-5. **Final Notes**: exactly `AI-generated before recording` (for create_catalog_db.sql and catalog_search.sql).
-   Fill in **Source of Data** if Studio shows it.
-6. Tick **Final Confirmation** → **Submit for Review**. The status should become **Ready for Review**.
-7. Afterwards, keep the recording folders until review passes, then delete them and empty the Trash.
+## Phase H: after recording
+1. Wait for Idle → **Show Recordings** → copy the newest `recording_…` folder and `.zip`, unchanged, into
+   `/Users/Shared/payments-task/`. Copy `refund_summary.xlsx` from Downloads into `/Users/Shared/payments-task/` too.
+2. Tell me. I check everything as I did for the catalog take 4, then build `payments/outputs/Deliverables.zip` and
+   finalize Metadata.rtf. The zip holds:
+   - `input 1.sql` (create_payments_db.sql);
+   - `artifact 1.sql` (refund_investigation.sql);
+   - `artifact 2.csv` (duplicate_refunds.csv);
+   - `final output 1.xlsx` (refund_summary.xlsx).
+3. You upload Metadata.rtf, video.mp4, the recording zip (unmodified) and Deliverables.zip. Run both AutoQCs, do the
+   checks, set Final Notes to `AI-generated before recording`, and submit.
