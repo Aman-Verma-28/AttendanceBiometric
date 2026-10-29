@@ -192,19 +192,6 @@ SAY (before typing, cursor resting in the editor):
 > charge the customer meant to make, so we keep it. Numbers two and three are duplicates, so we refund them. The order
 > of operations matters: I'll filter to captured rows first and number them second."
 
-ACTION (optional, about 30 seconds, shows why the order matters): type and run the trap query.
-```sql
-SELECT count(*) AS would_refund
-FROM (SELECT p.*, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY created_at, id) AS rn
-      FROM payments p) c
-WHERE rn > 1 AND status = 'captured';
-```
-SAY:
-> "To show why, here's the wrong way: number every attempt first, failed ones included. I'll highlight it and click
-> Execute. It would refund **232** payments. The right answer is 110, so 122 of those are customers whose first
-> attempt failed and whose second attempt was their only real payment. This version would refund it, and they would
-> pay nothing."
-
 ACTION: type the real query in three bursts → drag-select → Execute → click the **Messages** tab.
 ```sql
 CREATE TABLE refund_list AS
@@ -369,8 +356,8 @@ SAY (in your own words; cover all six points):
 > attempts to see the cause, the new idempotency key on every retry, and only then wrote the refund rule."
 
 > **Challenges.** "The tricky part was the order of operations. If I had numbered every attempt before filtering out
-> failed ones, the list would have refunded 232 payments instead of 110, and 122 customers would have been refunded
-> their only real payment."
+> failed ones, a failed first attempt would have taken number one, and the customer's only real payment would have
+> been refunded."
 
 > **Quality.** "I'm confident in the list because the check is separate from the query that built it, and the
 > spreadsheet matches the database. The weak spot is anything outside this table, such as a refund someone already
