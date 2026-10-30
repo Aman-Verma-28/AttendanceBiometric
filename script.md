@@ -13,6 +13,16 @@ with the real numbers from the loaded data.
 - **Say every keyboard shortcut** as you press it ("Command S to save").
 - **No silence over 45 seconds. No typing burst over 45 seconds:** type a query in two or three bursts and talk in
   between.
+- **The mouse never sits still for more than about 20 seconds** (the review fails anything over 45 seconds; only the
+  epilogue may rest). Take 1 was sent back for this. The cursor stayed still while you typed queries in Steps 1–4 and
+  the A7 summary, and while you explained Step 2. For every query, use the **type-and-point loop**:
+  1. Type **one line**.
+  2. Put your hand on the mouse, point at that line and say what it does.
+  3. Click at the end of the line to put the caret back.
+  4. Press Return and type the next line.
+
+  While you explain a result, trace it with the cursor: point at each row or number as you say it. Never circle
+  aimlessly.
 - **To run one query:** highlight the whole query, then click Execute. Triple-click a one-line query; drag from the
   first word to the semicolon for a longer one.
 
@@ -129,7 +139,8 @@ SAY:
 > card gets declined and the customer tries again. The problem is the gateway timeout, which the incident report puts
 > between 14:00 and 14:30 UTC on October 14th."
 
-ACTION: type the window query in two bursts (lines 1–4, then 5–7) → drag-select it → Execute.
+ACTION: type the window query with the **type-and-point loop**, one line at a time → drag-select it → Execute.
+(Take 1: 2½ minutes of typing here with the mouse still.)
 ```sql
 SELECT order_id, count(*) AS captures
 FROM payments
@@ -158,8 +169,9 @@ SAY:
 
 ## Step 2: the retry pattern on one order
 
-ACTION: Data Output → double-click the first order id (**2010091**) → ⌘C. In the editor, type the query, then paste the
-id with ⌘V → drag-select → Execute.
+ACTION: Data Output → double-click the first order id (**2010091**) → ⌘C. In the editor, type the query with the
+**type-and-point loop**, paste the id with ⌘V → drag-select → Execute. When the rows appear, point at each
+created_at time as you read it.
 ```sql
 SELECT id, order_id, status, amount, currency, idempotency_key, created_at
 FROM payments
@@ -187,12 +199,14 @@ ACTION: **⌘S**.
 
 ## Step 3: build the refund list
 
-SAY (before typing, cursor resting in the editor):
+SAY (before typing; **don't rest the cursor**: point at the three 2010091 rows still in Data Output as you say
+"number one", "two" and "three". Take 1 had 70 seconds of a still cursor here):
 > "Step 3. The rule for the refunds: for each order, number its successful captures in time order. Number one is the
 > charge the customer meant to make, so we keep it. Numbers two and three are duplicates, so we refund them. The order
 > of operations matters: I'll filter to captured rows first and number them second."
 
-ACTION: type the real query in three bursts → drag-select → Execute → click the **Messages** tab.
+ACTION: type the real query with the **type-and-point loop**, one line at a time → drag-select → Execute → click the
+**Messages** tab.
 ```sql
 CREATE TABLE refund_list AS
 SELECT id AS payment_id, order_id, customer_id, amount, currency
@@ -218,7 +232,7 @@ ACTION: **⌘S**.
 
 ## Step 4: check, total, export
 
-ACTION: type the check in two bursts → drag-select → Execute.
+ACTION: type the check with the **type-and-point loop**, one line at a time → drag-select → Execute.
 ```sql
 SELECT p.order_id, count(*) - count(r.payment_id) AS captures_left
 FROM payments p
@@ -236,7 +250,8 @@ SAY:
 > "Highlight, Execute. Data Output is **empty** and Total rows at the bottom-left says **zero**. No order is left with
 > zero charges or two charges, so every customer pays exactly once."
 
-ACTION: type the totals → drag-select → Execute.
+ACTION: type the totals with the **type-and-point loop** → drag-select → Execute → point at each currency's total as
+you read it.
 ```sql
 SELECT currency, count(*) AS refunds, sum(amount) AS refund_total
 FROM refund_list
@@ -316,6 +331,7 @@ SAY:
 ## Step 6: summary, download, stop check
 
 ACTION: click **A7** → `Summary` → Tab → B7: `100 affected orders; refunds EUR 4849.79 (30), GBP 2323.47 (18), USD 9942.11 (62)`.
+Before typing each currency's numbers, point at that row of the pivot (take 1: 47 seconds of a still cursor here).
 SAY:
 > "Step 6. A one-line summary for operations. In cell A7 I'll type Summary, press Tab to move to B7, and type: 100
 > affected orders, and the refunds per currency with their counts."
@@ -378,7 +394,8 @@ ACTION: TaskRecorder → **Stop Recording**. Don't quit; wait for **Idle**.
 ---
 
 ## Bridge lines (use these instead of going silent)
-- While typing a long query: *"This part filters to captured payments; next I group by order…"*
+- While typing a long query, point at the line you just typed: *"This line, here, filters to captured payments; next I
+  group by order…"*
 - While the import runs: *"While that loads: the CSV has one row per refund, so the operations tool can process it
   line by line."*
 - Before switching apps: *"I'll move to the Dock on the right and click {{Chrome / pgAdmin}} to {{build the summary /
