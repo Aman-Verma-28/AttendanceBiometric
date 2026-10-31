@@ -140,10 +140,7 @@ SAY:
 
 ACTION: cursor → the Dock (right edge) → the pgAdmin elephant → click.
 SAY:
-> "Step 1. I'm a payments backend engineer, and one of the jobs my team owns is the daily settlement
-> reconciliation. Every day, our card processor pays us for the card payments it settled, minus its fees. Before
-> finance books that payout, we check it against our own ledger, which is our record of every capture our system
-> made. If the two don't agree, we have to explain exactly why, to the cent, before anyone signs off.
+> "Step 1. I'm a payments backend engineer, and every day I check what our card processor settled against what our ledger captured. Before finance books the payout, every difference has to be explained to the cent.
 > I'll move the cursor right to the Dock on the right edge of the screen and click pgAdmin 4, the blue elephant just
 > below Chrome."
 
