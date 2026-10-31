@@ -1,414 +1,533 @@
-# Narration script: payments refund list (pgAdmin 4 + Google Sheets, about 32 minutes)
+# Narration script: settlement reconciliation (pgAdmin 4 + Google Sheets, about 25 minutes)
 
-Goes with [run-sheet.md](run-sheet.md) Phase G. The run sheet has the setup. This file is what you **do** and **say**,
-with the real numbers from the loaded data.
+One simple flow, the same shape as the payments task:
+- **pgAdmin 4:** look at the two tables, measure the gap, build the breaks table with one query, check it, and
+  export it as a CSV.
+- **Google Sheets:** import the CSV, build one pivot, add one check column, write a summary and download the file.
+
+Every number in **bold** is what the screen shows with the loaded data; I tested it on 2026-10-31.
+
+---
 
 ## How to use this script
+
 - **Rehearse with it; don't read it on camera.** Learn the flow and the *why* lines, then say them in your own words.
   Only the intro sentence must be word for word.
-- **Keep it off the screen.** Use your phone, an iPad or a printout.
-- `ACTION` = what your hands do. `SAY` = what you say while doing it. Numbers in **bold** are what the screen will show
-  with this data. If the screen shows something else, say what you see.
-- **Every click:** name the control, say where it is, and say the cursor movement. Never a bare "this" or "here".
-- **Say every keyboard shortcut** as you press it ("Command S to save").
-- **No silence over 45 seconds. No typing burst over 45 seconds:** type a query in two or three bursts and talk in
-  between.
-- **The mouse never sits still for more than about 20 seconds** (the review fails anything over 45 seconds; only the
-  epilogue may rest). Take 1 was sent back for this. The cursor stayed still while you typed queries in Steps 1–4 and
-  the A7 summary, and while you explained Step 2. For every query, use the **type-and-point loop**:
-  1. Type **one line**.
-  2. Put your hand on the mouse, point at that line and say what it does.
-  3. Click at the end of the line to put the caret back.
-  4. Press Return and type the next line.
+- **Keep it off the screen.** Use your phone, an iPad or a printout. The numbers card at the end fits on one phone
+  screen.
+- `ACTION` = what your hands do. `SAY` = what you say while doing it. If the screen shows something different from
+  the script, say what you see.
+- **Every click: What + Where.** Name the control, say where it is on screen, and say where the cursor moves.
+  Never say a bare "this" or "here".
+- **Pattern for every click:** "I'll move the cursor [direction] to [named control], the [shape or colour] in the
+  [screen area], and click it [to do what]."
 
-  While you explain a result, trace it with the cursor: point at each row or number as you say it. Never circle
-  aimlessly.
-- **To run one query:** highlight the whole query, then click Execute. Triple-click a one-line query; drag from the
-  first word to the semicolon for a longer one.
+## The five rules that sent the payments takes back
 
-### The pattern for every click
-> "I'll move the cursor [direction] to [named control], the [shape or colour] in the [screen area], and click it
-> [to do what]."
-
-| Don't say | Say |
-|---|---|
-| "click here" | "click Execute, the white play triangle in the toolbar above the editor" |
-| "copy this" | "double-click the first order id in Data Output and press Command C" |
-| "it says here" | "the Messages tab, at the top-left of the results panel, says SELECT 110" |
-| "save it" | "Command S to save; the star after the file name in the tab title disappears" |
+1. **The mouse is never still for more than about 20 seconds**, except in the epilogue. Use the type-and-point loop
+   for every query:
+   1. Type **one line**.
+   2. Put your hand on the mouse, **point at that line** and say what it does.
+   3. Click at the **end of the line** to put the caret back.
+   4. Press Return and type the next line.
+2. **While you explain a result, trace it with the cursor.** Point at each row or number as you say it, and pause about
+   one second after each click. Don't circle the cursor aimlessly.
+3. **Say every shortcut out loud** as you press it, for example "Command S to save".
+4. **Use the exact file names from the Goal.** When pgAdmin offers `data-….csv`, select the whole name and replace it
+   with `settlement_breaks.csv`. Name the Google Sheet `settlement_reconciliation`.
+5. **Download the .xlsx on camera and click the download arrow before the epilogue.** The recording isn't finished
+   until the download list shows the file.
 
 ---
 
 ## Screen map (check it once on the real screen)
 
 **macOS**
-- **Dock** on the right edge. **Chrome** is the red, yellow and green circle; **pgAdmin 4** is the blue elephant just
-  below it; **TaskRecorder** is just below pgAdmin.
-- **Window buttons**: three circles at each window's top-left: red Close, **yellow Minimize**, green Zoom.
+- **Dock** on the right edge. **Chrome** is the red, yellow and green circle. **pgAdmin 4** is the blue elephant just
+  below it. **TaskRecorder** is just below pgAdmin.
+- **Window buttons:** the three circles at each window's top-left are red Close, **yellow Minimize** and green Zoom.
 
 **pgAdmin 4**
-- **Object Explorer**: the panel down the left side.
-- **Query Tool toolbar**, the row of icons above the editor, from left to right:
-  - Open File (folder);
-  - **Save File** (floppy disk), with a **small down arrow** next to it that holds **Save As**;
-  - Edit;
-  - Filter;
-  - the "No limit" box;
-  - Stop (grey square);
-  - **Execute** (white **play triangle**, F5).
-- **Editor**: the middle area, with line numbers down its left edge.
-- **Results panel**: the lower half, with the **Data Output** and **Messages** tabs at its top-left.
-- **Status bar**: the bottom edge. **Total rows** is at the bottom-left, and **Query complete** with the time is to its
-  right.
-- **Save results to file**: in the small toolbar right above the result grid, the **down-arrow icon**, sixth from the
-  left, just left of the zig-zag graph icon.
+- **Object Explorer:** the tree down the left side.
+- **Query Tool toolbar:** the row of icons above the editor. From left to right:
+  - Open File (folder).
+  - **Save File** (floppy disk), with a **small down arrow** beside it that holds **Save As**.
+  - Edit.
+  - Filter.
+  - The "No limit" box.
+  - Stop (grey square).
+  - **Execute** (white **play triangle**).
+- **Editor:** the middle area, with line numbers down its left edge.
+- **Results panel:** the lower half, with the **Data Output** and **Messages** tabs at its top-left.
+- **Status bar:** the bottom edge, with **Total rows** at the bottom-left.
+- **Save results to file:** the **down-arrow icon**, sixth from the left in the small toolbar right above the
+  result grid, just left of the zig-zag graph icon.
 
 **Chrome / Google Sheets**
-- **Tabs** across the top: **Goal Document**, then **refund_summary**.
-- The **File, Edit, View, Insert, …** menus at the top-left, under the sheet title.
-- The **sheet tabs** at the bottom-left. The **pivot table editor** opens as a panel on the right side.
-- The **download arrow** in Chrome's toolbar at the top-right, after a download.
+- **Tabs** across the top: **Goal Document**, then **settlement_reconciliation**.
+- **Menus:** File, Edit, View, Insert and the rest, at the top-left under the sheet title.
+- **Sheet tabs:** at the bottom-left.
+- **Pivot table editor:** a panel that opens on the right side.
+- **Download arrow:** in Chrome's toolbar at the top-right, after a download.
+
+## Timing
 
 | Section | Target | Clock at end (about) |
 |---|---|---|
 | Intro | 0:20 | 0:20 |
-| 1. Find the orders charged more than once | 4:00 | 4:20 |
-| 2. The retry pattern on one order | 3:00 | 7:20 |
-| 3. Build the refund list | 6:00 | 13:20 |
-| 4. Check, total, export | 6:00 | 19:20 |
-| 5. Sheets: import, pivot, cross-check | 7:00 | 26:20 |
-| 6. Summary, download, stop check | 3:00 | 29:20 |
-| Epilogue | 3:00 | 32:20 |
+| 1. The two tables and a clean settlement line | 4:30 | 4:50 |
+| 2. The gap per currency | 3:00 | 7:50 |
+| 3. The breaks table (one query) | 6:00 | 13:50 |
+| 4. Check, walk through the breaks, export | 3:30 | 17:20 |
+| 5. Sheets: import, pivot, tie-out | 4:30 | 21:50 |
+| 6. Summary, download, stop check | 1:30 | 23:20 |
+| Epilogue | 3:15 | 26:35 |
+
+Anything from 20 to 28 minutes is fine; the allowed range is 15:00 to 50:59.
+
+---
+
+## Before you record (not recorded)
+
+### A. One-time setup in the Recorder account
+1. **pgAdmin:** right-click the server in the tree → **Properties** → **Advanced** tab → **DB restriction**. Remove
+   `payments`, add `settlement`, then **Save**. Right-click the server → **Refresh**. The tree should show only
+   **settlement**, and under **Tables** only `ledger_captures` and `settlement_lines`.
+2. **Goal Document** (in Chrome, signed in with the @mercor.expert account): replace the text with the new Goal, word
+   for word from Studio.
+3. **Google Sheets:** create a blank spreadsheet and title it `settlement_reconciliation`. Leave it empty.
+4. **One UI change** from the payments recordings, for example a new wallpaper.
+
+### B. Practice once (not recorded)
+Run Steps 1 to 6 once, without the epilogue, timing it with the menu-bar clock. Then:
+- **Tell me.** I'll run `DROP TABLE settlement_breaks;` so the database is clean again.
+- **Delete** the practice `reconciliation.sql`, `settlement_breaks.csv` and `settlement_reconciliation.xlsx` from
+  Downloads.
+- **Clear the practice spreadsheet:** delete it, create a new blank one titled `settlement_reconciliation`, and empty
+  Drive's trash.
+
+### C. Pre-flight (the 10 minutes before Start)
+Main account: Studio, Slack, the guidelines, Metadata.rtf and this file are closed. Switch to the Recorder account.
+- [ ] Mac on power, quiet room, **Do Not Disturb on**.
+- [ ] Dock on the right, menu-bar clock with seconds, default cursor.
+- [ ] **Accessibility Inspector** running with its window closed. **Xcode** quit.
+- [ ] ⌘Tab shows only pgAdmin 4, Chrome, TaskRecorder and Accessibility Inspector.
+- [ ] **pgAdmin:** connected, the tree open at `settlement → Schemas → public → Tables` (no `settlement_breaks`), no
+  Query Tool open, window minimized.
+- [ ] **Chrome:** the Goal Document tab and the blank `settlement_reconciliation` tab, with the Goal Document in front.
+- [ ] **Downloads:** no `reconciliation*`, `settlement*` or `data-*` files.
+- [ ] **TaskRecorder:** Task Description = the Goal. **Used Apps = `pgAdmin 4`, `Google Sheets`.** Check Used Apps
+  again as the very last thing before Start.
 
 ---
 
 ## Intro (under 20 seconds, exact words)
 
-ACTION: the Goal Document is visible behind TaskRecorder. **Used Apps shows pgAdmin 4 and Google Sheets.** Click
-**Start Recording**, then minimize TaskRecorder at once.
+ACTION: the Goal Document is visible behind TaskRecorder. Click **Start Recording**, then minimize TaskRecorder at
+once.
 
 SAY (exactly):
 > "I will be beginning my task soon. Here is the workflow I have in mind."
 
-ACTION: wait 2 to 3 seconds. Cursor to Chrome's top-left → yellow Minimize.
+ACTION: wait 2 to 3 seconds, then move the cursor to Chrome's top-left and click the yellow Minimize button.
 SAY:
 > "I'll move the cursor to the top-left corner of the Chrome window and click the yellow Minimize button, the middle
 > of the three circles."
 
 ---
 
-## Step 1: find the orders charged more than once (pgAdmin 4)
+## Step 1: the two tables and a clean settlement line (pgAdmin 4, about 4.5 min)
 
-ACTION: cursor → Dock (right edge) → pgAdmin elephant → click.
+ACTION: cursor → the Dock (right edge) → the pgAdmin elephant → click.
 SAY:
-> "Step 1. Yesterday our payment gateway had timeouts, and support says some customers were charged twice. I'll move
-> the cursor right to the Dock on the right edge of the screen and click pgAdmin 4, the blue elephant just below
-> Chrome."
+> "Step 1. I'm a payments backend engineer, and one of the jobs my team owns is the daily settlement
+> reconciliation. Every day, our card processor pays us for the card payments it settled, minus its fees. Before
+> finance books that payout, we check it against our own ledger, which is our record of every capture our system
+> made. If the two don't agree, we have to explain exactly why, to the cent, before anyone signs off.
+> I'll move the cursor right to the Dock on the right edge of the screen and click pgAdmin 4, the blue elephant just
+> below Chrome."
 
-ACTION: Object Explorer: expand payments → Schemas → public → Tables → payments → Columns, and point down the columns.
+ACTION: in the Object Explorer, expand **settlement → Schemas → public → Tables**. Point at the two tables.
 SAY:
-> "On the left side is the Object Explorer. I'll expand the payments database, then Schemas, public, Tables, and the
-> payments table, then click the arrow next to Columns. Each row of this table is one capture attempt, which means one
-> try at taking money from a card. The columns are the payment id, the order id, a customer code, the amount, the
-> currency, a status of captured or failed, the idempotency key the checkout service sent, and the time."
+> "On the left is the Object Explorer. I'll expand the settlement database, then Schemas, public and Tables. There are
+> two tables. ledger_captures is our side: what our system captured today. settlement_lines is the processor's side:
+> its settlement report for the same day."
+
+ACTION: click the arrow next to **ledger_captures**, then the arrow next to **Columns**, and move the cursor down the
+column names one at a time.
+SAY:
+> "In ledger_captures, each row is one card capture: a capture id, the order id, the processor reference, which is
+> the id the processor gave this payment, then the amount, the currency, and the time we captured it."
+
+ACTION: click the arrow next to **settlement_lines**, then its **Columns**, and move down the names.
+SAY:
+> "In settlement_lines, each row is one payment the processor settled: the same processor reference, the gross
+> amount, the fee the processor kept, the net amount it paid us, and the currency. The processor reference is the
+> one field both sides share, so that's what I'll match on."
 
 SAY (first-use description of the input; required; never name a tool):
-> "This is a synthetic test copy of one day of payments, about ten thousand rows prepared before this session. It
-> contains no real customer data: customers are just codes, and there are no names or card numbers."
+> "This is a synthetic test database I prepared before this session: one day of about 7,900 captures and the
+> matching settlement report. It's made-up data created for this exercise, so it's free to use, with no license
+> restrictions. It contains no real customer or card data, only generated reference codes."
 
-ACTION: right-click the **payments database** (not the table) → **Query Tool**.
+ACTION: right-click **settlement_lines** → **View/Edit Data** → **First 100 Rows**. A new tab opens with a grid.
+Point at the first row, one cell at a time.
 SAY:
-> "I'll move up the tree, right-click the payments database, and choose Query Tool from the menu. That opens an SQL
-> editor in the middle of the window."
+> "Before I write any SQL, I want to see what a clean line looks like. I'll right-click settlement_lines and choose
+> View/Edit Data, then First 100 Rows. A grid opens in a new tab. The first row is PR-0000001: gross **248.44**
+> dollars, fee **7.50**, net **240.94**.
+> Our contract with the processor is 2.9% of the gross plus 30 cents per payment. 2.9% of 248.44 is about 7.20, and
+> plus 30 cents that makes 7.50, exactly the fee here. The net, 240.94, is the gross minus the fee. That's a clean
+> line. Anything that doesn't look like this is what I'm hunting for."
 
-ACTION: toolbar → small down arrow right of the floppy disk → **Save As** → type `refund_investigation.sql` → Where:
-`payments-task` → blue **Save**.
+ACTION: close that data tab with the small **x** on its tab title at the top.
 SAY:
-> "Before I write anything, I'll save the file so all my queries are kept. In the toolbar above the editor, the second
-> icon from the left is the Save File button, a floppy disk. I'll click the small down arrow just to its right and
-> choose Save As. In the dialog, I'll type refund underscore investigation dot sql, choose the payments-task folder in
-> the Where menu, and click the blue Save button at the bottom-right. The tab title at the top of the editor now reads
-> refund_investigation.sql."
+> "I'll close this data tab with the small x on its tab title at the top."
 
-ACTION: type `SELECT count(*) AS attempts, count(DISTINCT order_id) AS orders FROM payments;` → triple-click → Execute.
+ACTION: right-click the **settlement database** (not a table) → **Query Tool**.
 SAY:
-> "First, the size of the table. I'll type a count of all attempts and of distinct orders. I'll triple-click the line
-> to highlight it, move up to the toolbar and click Execute, the white play triangle just right of the grey square Stop
-> button."
-> "In Data Output in the lower half: **10,107** attempts but only **9,850** orders. A few extra attempts are normal: a
-> card gets declined and the customer tries again. The problem is the gateway timeout, which the incident report puts
-> between 14:00 and 14:30 UTC on October 14th."
+> "Now I'll right-click the settlement database in the tree and choose Query Tool. That opens an SQL editor in the
+> middle of the window."
 
-ACTION: type the window query with the **type-and-point loop**, one line at a time → drag-select it → Execute.
-(Take 1: 2½ minutes of typing here with the mouse still.)
-```sql
-SELECT order_id, count(*) AS captures
-FROM payments
-WHERE status = 'captured'
-  AND created_at >= '2026-10-14 14:00+00' AND created_at < '2026-10-14 14:30+00'
-GROUP BY order_id
-HAVING count(*) > 1
-ORDER BY captures DESC, order_id;
-```
-SAY (while typing the first burst):
-> "Now I'll count captures per order inside that window. I only count status captured, because a failed attempt never
-> took any money."
-SAY (second burst):
-> "GROUP BY puts each order's rows together, and HAVING count greater than one keeps only the orders captured more than
-> once. I'll sort the worst first."
-SAY (after running):
-> "I'll drag from SELECT down to the semicolon to highlight the query and click Execute in the toolbar. In the status
-> bar at the bottom-left, Total rows says **100**. So a hundred orders were charged more than once. The first ten rows
-> in Data Output show **3** captures: those customers were charged three times. The rest show 2."
-
-ACTION: **⌘S**.
+ACTION: toolbar → the small down arrow right of the floppy disk → **Save As** → type `reconciliation.sql` → Where:
+**Downloads** → the blue **Save** button.
 SAY:
-> "Command S to save the file. The star after the name in the tab title goes away."
+> "Before I write anything, I'll save the file so every query is kept. In the toolbar above the editor, the second
+> icon is the Save File button, a floppy disk. I'll click the small down arrow just to its right and choose Save As.
+> I'll name it reconciliation dot sql, keep Downloads in the Where menu, and click the blue Save button at the
+> bottom-right. The tab title at the top of the editor now reads reconciliation.sql."
 
 ---
 
-## Step 2: the retry pattern on one order
+## Step 2: the gap per currency (about 3 min)
 
-ACTION: Data Output → double-click the first order id (**2010091**) → ⌘C. In the editor, type the query with the
-**type-and-point loop**, paste the id with ⌘V → drag-select → Execute. When the rows appear, point at each
-created_at time as you read it.
+SAY (before typing, cursor in the editor):
+> "Step 2. First I want the size of the problem: per currency, how much we captured, how much the processor settled,
+> and the difference. I keep each currency separate, because euros, pounds and dollars can't be added together."
+
+ACTION: type with the loop, one line at a time, pointing at each line after you type it.
 ```sql
-SELECT id, order_id, status, amount, currency, idempotency_key, created_at
-FROM payments
-WHERE order_id = 2010091
-ORDER BY created_at;
-```
-SAY:
-> "Step 2. I want to see why the gateway let these through. In Data Output I'll double-click the first order id,
-> 2010091, and press Command C to copy it. Back in the editor I'll write a query for every attempt of one order, and
-> paste the id after order_id equals with Command V. Then I'll highlight the query and click Execute."
-> "Data Output shows **three** rows, all captured, all **217.38 dollars**, at **14:15:13**, **14:15:28** and **14:15:46**:
-> three charges in about half a minute."
-
-ACTION: point along the **idempotency_key** column, row by row.
-SAY (the key *why*):
-> "Now the idempotency_key column. Every attempt has a **different** key. An idempotency key is a unique id the checkout
-> service sends with a payment, so if it ever sends the same request twice, the gateway recognises the key and charges
-> only once. But when the gateway timed out, the retry code generated a new key each time. To the gateway these looked
-> like three separate payments, so it charged all three. The root cause is the retry creating a new key instead of
-> reusing the original one. That's a code fix for later. Today's job is refunding the extra charges."
-
-ACTION: **⌘S**.
-
----
-
-## Step 3: build the refund list
-
-SAY (before typing; **don't rest the cursor**: point at the three 2010091 rows still in Data Output as you say
-"number one", "two" and "three". Take 1 had 70 seconds of a still cursor here):
-> "Step 3. The rule for the refunds: for each order, number its successful captures in time order. Number one is the
-> charge the customer meant to make, so we keep it. Numbers two and three are duplicates, so we refund them. The order
-> of operations matters: I'll filter to captured rows first and number them second."
-
-ACTION: type the real query with the **type-and-point loop**, one line at a time → drag-select → Execute → click the
-**Messages** tab.
-```sql
-CREATE TABLE refund_list AS
-SELECT id AS payment_id, order_id, customer_id, amount, currency
-FROM (
-  SELECT p.*, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY created_at, id) AS rn
-  FROM payments p
-  WHERE status = 'captured'
-) c
-WHERE rn > 1;
-```
-SAY (bursts):
-> "Now the right way. The inner query keeps only captured rows. Then ROW_NUMBER, partitioned by order_id, restarts the
-> numbering for every order, ordered by time. The id breaks a tie if two captures share the same second."
-> "The outer query keeps row number two and above, the duplicates, and saves them as a new table called refund_list."
-SAY (after running):
-> "I'll highlight from CREATE down to the semicolon and click Execute. Then I'll click the Messages tab at the top-left
-> of the results panel, next to Data Output. It says **SELECT 110**: one refund for each of the 90 orders charged twice,
-> and two refunds for each of the 10 orders charged three times. 90 plus 20 is 110."
-
-ACTION: **⌘S**.
-
----
-
-## Step 4: check, total, export
-
-ACTION: type the check with the **type-and-point loop**, one line at a time → drag-select → Execute.
-```sql
-SELECT p.order_id, count(*) - count(r.payment_id) AS captures_left
-FROM payments p
-LEFT JOIN refund_list r ON r.payment_id = p.id
-WHERE p.status = 'captured'
-  AND p.order_id IN (SELECT order_id FROM refund_list)
-GROUP BY p.order_id
-HAVING count(*) - count(r.payment_id) <> 1;
-```
-SAY:
-> "Step 4. Before anything is refunded, I'll prove each customer ends up paying exactly once. For every affected order,
-> I take its captures and subtract the ones in the refund list. That must leave exactly one. The LEFT JOIN matches each
-> capture to the refund list if it's there, and count of r.payment_id counts only the matched ones. This query lists
-> any order where the result isn't one."
-> "Highlight, Execute. Data Output is **empty** and Total rows at the bottom-left says **zero**. No order is left with
-> zero charges or two charges, so every customer pays exactly once."
-
-ACTION: type the totals with the **type-and-point loop** → drag-select → Execute → point at each currency's total as
-you read it.
-```sql
-SELECT currency, count(*) AS refunds, sum(amount) AS refund_total
-FROM refund_list
-GROUP BY currency
+SELECT currency, l.total AS ledger_total, s.total AS settled_total, l.total - s.total AS gap
+FROM (SELECT currency, sum(amount) AS total FROM ledger_captures GROUP BY currency) l
+JOIN (SELECT currency, sum(gross_amount) AS total FROM settlement_lines GROUP BY currency) s USING (currency)
 ORDER BY currency;
 ```
-SAY:
-> "Now the totals per currency. Euros, pounds and dollars can't be added together, so I group by currency. Highlight,
-> Execute. Data Output shows **EUR 30 refunds, 4,849.79**; **GBP 18, 2,323.47**; and **USD 62, 9,942.11**. That's 110
-> refunds."
+| Line | Point at it and say |
+|---|---|
+| 1 | "The output: for each currency, our total, the processor's total, and the gap between them." |
+| 2 | "Our side: the sum of the captured amounts per currency. I call it l, for ledger." |
+| 3 | "The processor's side: the sum of the settled gross amounts per currency, called s, joined to ours on the currency." |
+| 4 | "Sorted by currency." |
 
-ACTION: type the comment line `-- DB totals: EUR 4849.79 | GBP 2323.47 | USD 9942.11` → **⌘S**.
+ACTION: drag from **SELECT** down to the semicolon → **Execute** (the white play triangle).
 SAY:
-> "I'll note these totals as a comment at the bottom of the file, so I can check the spreadsheet against them later.
-> The two dashes make it a comment, so it never runs. Command S to save."
+> "I'll drag from SELECT down to the semicolon to highlight the query, move up to the toolbar and click Execute, the
+> white play triangle just right of the grey square Stop button."
 
-ACTION: type `SELECT * FROM refund_list ORDER BY order_id, payment_id;` → triple-click → Execute.
-SAY:
-> "Now the export. I'll select every row of refund_list, sorted by order. Triple-click, Execute. Total rows says
-> **110**."
+EXPECT, in Data Output (point at each number as you read it):
 
-ACTION: cursor → the toolbar right above the grid → **Save results to file** (down arrow, sixth from left) → name
-`duplicate_refunds.csv`, Where: `payments-task` → **Save**.
-SAY:
-> "I'll move the cursor down to the small toolbar right above the result grid and click Save results to file, the
-> down-arrow icon, sixth from the left, just left of the zig-zag graph icon. In the save dialog I'll name it duplicate
-> underscore refunds dot csv, choose the payments-task folder in the Where menu, and click Save at the bottom-right. The
-> payments operations team will load this file into the refund tool."
+| currency | ledger_total | settled_total | gap |
+|---|---|---|---|
+| EUR | **294708.65** | **292271.84** | **2436.81** |
+| GBP | **181968.83** | **179637.27** | **2331.56** |
+| USD | **725183.83** | **719036.93** | **6146.90** |
 
-ACTION: **⌘S** → yellow Minimize at pgAdmin's top-left.
 SAY:
-> "One more Command S to save my SQL file, and I'll minimize pgAdmin with the yellow button at its top-left."
+> "Three rows in Data Output. Euros: we captured 294,708.65, and the processor settled 292,271.84, so the gap is
+> 2,436.81. Pounds: a gap of 2,331.56. Dollars: a gap of 6,146.90. In every currency we captured more than the
+> processor paid for. Some of that is normal and some of it isn't, and my job is to say which, for every cent."
+
+ACTION: click at the end of the last line, press Return twice, and type the comment line. Then **⌘S**.
+```sql
+-- gap: EUR 2436.81 | GBP 2331.56 | USD 6146.90
+```
+SAY:
+> "I'll note the three gaps as a comment, so I can check the spreadsheet against them later. The two dashes make it a
+> comment, so it never runs. Command S to save. The star after the file name in the tab title goes away."
 
 ---
 
-## Step 5: Google Sheets: import, pivot, cross-check
+## Step 3: the breaks table, one query (about 6 min)
 
-ACTION: Dock → Chrome → the **refund_summary** tab.
-SAY:
-> "Step 5. Now I'll build the summary for operations in Google Sheets. I'll move right to the Dock and click Chrome,
-> the red, yellow and green circle just above pgAdmin. At the top of the window I'll click the second tab,
-> refund_summary, my blank sheet."
+SAY (before typing; point at each gap figure in Data Output as you name the break types):
+> "Step 3. A difference between the ledger and the settlement report can be one of four things, and each needs a
+> different action.
+> One: timing. The processor closes its business day at 22:00 UTC. Anything we captured after 22:00 settles in
+> tomorrow's report. That's expected, not an error, so we just carry it forward.
+> Two: missing. We captured it before the cut-off, but it's not in the report. That's money we may never receive, so
+> we raise it with the processor.
+> Three: unknown. The processor settled it, but our ledger has no record of it. That usually means our system lost a
+> capture, so we investigate on our side.
+> Four: an amount mismatch. Both sides have it, but the processor settled a different amount.
+> And separately, even when the amounts agree, I check the fee against our contract, 2.9% plus 30 cents, and flag
+> any fee more than one cent over, so finance can claim it back.
+> I'll put all of these in one table called settlement_breaks, with one row per problem record."
 
-ACTION: **File** (top-left) → **Import** → **Upload** tab → blue **Browse** → payments-task → duplicate_refunds.csv →
-**Open** → Import location **Insert new sheet(s)**, keep **Convert text to numbers** ticked → green **Import data**.
+ACTION: type with the loop. Type one line, point at it, say the line below, click at the line's end, and continue.
+Pause and point after every one or two lines; never type more than about 20 seconds without pointing.
+```sql
+CREATE TABLE settlement_breaks AS
+SELECT coalesce(l.processor_ref, s.processor_ref) AS processor_ref,
+       coalesce(l.currency, s.currency) AS currency,
+       CASE
+         WHEN s.processor_ref IS NULL AND l.captured_at >= '2026-10-20 22:00+00' THEN 'timing'
+         WHEN s.processor_ref IS NULL THEN 'missing'
+         WHEN l.processor_ref IS NULL THEN 'unknown'
+         WHEN l.amount <> s.gross_amount THEN 'amount mismatch'
+         ELSE 'fee overcharge'
+       END AS break_type,
+       coalesce(l.amount, 0) - coalesce(s.gross_amount, 0) AS difference,
+       s.fee - round(s.gross_amount * 0.029 + 0.30, 2) AS fee_over
+FROM ledger_captures l
+FULL OUTER JOIN settlement_lines s ON s.processor_ref = l.processor_ref
+WHERE l.processor_ref IS NULL OR s.processor_ref IS NULL
+   OR l.amount <> s.gross_amount
+   OR s.fee > round(s.gross_amount * 0.029 + 0.30, 2) + 0.01;
+```
+| Line(s) | Point at it and say |
+|---|---|
+| CREATE TABLE | "This saves the result as a new table, settlement_breaks, so I can check it and export it." |
+| coalesce … processor_ref | "Coalesce takes the first value that isn't empty. A missing capture has no settlement side, and an unknown line has no ledger side, so I take the reference from whichever side exists." |
+| coalesce … currency | "The same for the currency." |
+| CASE, first WHEN | "Now the break type, checked in order. No settlement line, and captured at or after 22:00: timing." |
+| second WHEN | "No settlement line but captured before the cut-off: missing." |
+| third WHEN | "No ledger capture: unknown." |
+| fourth WHEN | "Both sides exist but the amounts differ: amount mismatch." |
+| ELSE … END | "Anything else that reaches this list can only be here for its fee: fee overcharge." |
+| difference | "The difference is our amount minus the processor's gross. An empty side counts as zero. This is each break's share of the gap." |
+| fee_over | "fee_over is the fee charged minus the contract fee: 2.9% of the gross plus 30 cents, rounded to the cent." |
+| FROM / FULL OUTER JOIN | "A FULL OUTER JOIN on the processor reference keeps rows from both sides, including the ones with no match. A normal join would silently drop exactly the records I'm looking for." |
+| WHERE, first line | "Keep a row if either side is missing…" |
+| OR amount | "…or the amounts differ…" |
+| OR fee | "…or the fee is more than one cent above the contract. Every other row is a clean match and stays out." |
+
+ACTION: drag from **CREATE** down to the final semicolon → **Execute** → click the **Messages** tab.
 SAY:
-> "I'll click the File menu at the top-left and choose Import. In the dialog I'll click the Upload tab, then the blue
-> Browse button. In the Finder window I'll choose payments-task in the sidebar, then duplicate_refunds.csv, and click
-> Open. For Import location I'll pick Insert new sheet, so the data gets its own tab, and keep Convert text to numbers
-> ticked so the amounts become numbers. Then the green Import data button."
-> "A new tab, duplicate_refunds, appears at the bottom-left. I'll scroll down: the last row is **111**, so 110 refunds
+> "I'll drag from CREATE down to the semicolon on the last line and click Execute in the toolbar. Then I'll click the
+> Messages tab at the top-left of the results panel, next to Data Output. It says **SELECT 87**: 87 records need
+> attention out of about 7,900."
+
+ACTION: **⌘S**.
+SAY:
+> "Command S to save the file."
+
+---
+
+## Step 4: check, walk through the breaks, export (about 3.5 min)
+
+ACTION: click at the end of the file, press Return twice, and type the check. Triple-click the line → **Execute**.
+```sql
+SELECT count(*) AS breaks, count(DISTINCT processor_ref) AS refs FROM settlement_breaks;
+```
+SAY:
+> "Step 4. Before I export anything, I'll check that no record is listed twice. This counts the rows and the distinct
+> processor references. I'll triple-click the line to highlight it and click Execute."
+> "Data Output shows breaks **87** and refs **87**. The two counts are equal, so every reference appears exactly once.
+> No record was counted under two break types."
+
+ACTION: Return twice, type the export query, triple-click it → **Execute**.
+```sql
+SELECT * FROM settlement_breaks ORDER BY break_type, processor_ref;
+```
+SAY:
+> "Now the rows I'll export, sorted by break type. Triple-click, Execute. Total rows at the bottom-left says **87**."
+
+ACTION: walk through the grid with the cursor, group by group, scrolling as you go. Point at each example row.
+SAY (one group at a time):
+> "The first five rows are **amount mismatches**. For example PR-0000811 in dollars: the processor settled **2.42**
+> less than we captured."
+> "Next, twelve **fee overcharges**. Their difference is zero, because the amounts agree, but the fee_over column shows
+> what they charged above the contract. PR-0000649 was charged **1.12** too much."
+> "Then six **missing** captures, two in each currency. PR-0000505, **193.99** dollars, was captured at 1:24 in the
+> morning, long before the cut-off, so it should have been in today's report. These go to the processor."
+> "Then sixty **timing** rows, all captured after 22:00. They'll settle tomorrow, so no action except checking
+> tomorrow's report."
+> "And the last four are **unknown**. Their difference is negative, because the processor settled money our ledger
+> doesn't know about, for example PR-9000001 for **80.08** dollars. These are ours to investigate."
+
+ACTION: cursor → the small toolbar right above the grid → **Save results to file** (the down arrow, sixth from the
+left). In the save dialog, select the whole name → type `settlement_breaks.csv` → Where: **Downloads** → **Save**.
+SAY:
+> "Now I'll export these 87 rows. I'll move the cursor to the small toolbar right above the result grid and click
+> Save results to file, the down-arrow icon, sixth from the left, just left of the zig-zag graph icon. The save
+> dialog suggests a name starting with data. I'll select all of it and type settlement underscore breaks dot csv,
+> keep Downloads in the Where menu, and click Save at the bottom-right."
+
+ACTION: **⌘S** → the yellow Minimize button at pgAdmin's top-left.
+SAY:
+> "Command S once more to save my SQL file, and I'll minimize pgAdmin with the yellow button at the top-left of its
+> window."
+
+---
+
+## Step 5: Google Sheets: import, pivot, tie-out (about 4.5 min)
+
+ACTION: Dock → Chrome → the **settlement_reconciliation** tab.
+SAY:
+> "Step 5. Now I'll build the reconciliation for the finance operations team in Google Sheets. I'll move right to the
+> Dock and click Chrome, the red, yellow and green circle just above pgAdmin. At the top of the window, I'll click the
+> second tab, settlement_reconciliation, my blank sheet."
+
+ACTION: **File** (top-left) → **Import** → **Upload** tab → blue **Browse** → **Downloads** in the sidebar →
+`settlement_breaks.csv` → **Open**. Import location: **Insert new sheet(s)**. Keep **Convert text to numbers**
+ticked → the green **Import data** button.
+SAY:
+> "I'll click the File menu at the top-left and choose Import. In the dialog, I'll click the Upload tab, then the blue
+> Browse button. In the Finder window I'll choose Downloads in the sidebar, then settlement_breaks.csv, and click
+> Open. For Import location I'll pick Insert new sheet, so the data gets its own tab. I'll keep Convert text to
+> numbers ticked so the differences become numbers. Then I'll click the green Import data button."
+> "A new tab, settlement_breaks, appears at the bottom-left. I'll scroll down: the last row is **88**, so 87 breaks
 > plus the header row, the same as the database."
 
-ACTION: click **A1** → **Insert** → **Pivot table** → **New sheet** → **Create**. Editor on the right: **Rows → Add →
-currency**; **Values → Add → amount** (SUM); **Values → Add → payment_id** (COUNTA).
+ACTION: click **A1** → **Insert** → **Pivot table** → keep **New sheet** → **Create**. In the editor on the right:
+**Rows → Add → currency**, then **Columns → Add → break_type**, then **Values → Add → difference** (summarize by
+**SUM**).
 SAY:
-> "A pivot table groups and totals data without formulas. I'll click cell A1, then the Insert menu at the top and Pivot
-> table. In the dialog I'll keep New sheet and click Create."
-> "The pivot table editor opens on the right side. Next to Rows I'll click Add and choose currency. Next to Values I'll
-> click Add and choose amount, summarized by SUM. Then Add again for payment_id, summarized by COUNTA, which counts the
-> refunds."
-> "The table shows **EUR 4,849.79 from 30 refunds, GBP 2,323.47 from 18, and USD 9,942.11 from 62**. I'll ignore the
-> Grand Total row, because it adds three currencies together."
+> "A pivot table groups and totals data without formulas. I'll click cell A1, then the Insert menu at the top, and
+> Pivot table. In the dialog I'll keep New sheet and click Create."
+> "The pivot table editor opens on the right side. Next to Rows I'll click Add and choose currency. Next to Columns
+> I'll click Add and choose break_type. Next to Values I'll click Add and choose difference, summarized by SUM."
 
-ACTION: click **E1** → `DB total`; E2:E4 → `4849.79`, `2323.47`, `9942.11`. **F1** → `Difference`; F2 →
-`=ROUND(B2-E2,2)` → select F2:F4 → **⌘D**.
+EXPECT: currencies down the side (EUR, GBP, USD in rows 3 to 5), the five break types across the top, and a
+**Grand Total** column, normally **G**. Point along each row as you speak.
 SAY:
-> "Now the cross-check. In cell E1, to the right of the pivot, I'll type DB total, then the three totals from my SQL
-> comment in E2 to E4, in the same order as the pivot: euros, pounds, dollars."
-> "In F1 I'll type Difference, and in F2, equals ROUND of B2 minus E2, to two decimals. I round to cents because
-> spreadsheets store decimals in binary and can show a tiny leftover like 0.0000000001. I'll select F2 to F4 and press
-> Command D to fill down. All three are **0**: the sheet matches the database to the cent, so nothing was lost or
-> changed in the export."
+> "Each cell is the money in one kind of break in one currency. In dollars, for example, timing is **6,216.79**,
+> missing is **260.51**, and unknown is **−332.82**, negative because that's money the processor paid that our ledger
+> doesn't have. The fee overcharge column is zero, because a fee doesn't change the gross amount. The Grand Total
+> column on the right adds up each currency's breaks."
+
+ACTION:
+1. Click **I2** → type `DB gap`.
+2. In **I3, I4 and I5**, type `2436.81`, `2331.56` and `6146.90` (EUR, GBP, USD, the same order as the pivot).
+3. Click **J2** → type `Check`.
+4. Click **J3** → type `=ROUND(G3-I3,2)` → Return.
+5. Select **J3:J5** → **⌘D**.
+
+(If the Grand Total isn't in column G, use the letter where it is.)
+SAY:
+> "Now the tie-out. If my breaks explain everything, each currency's Grand Total must equal the gap I measured in the
+> database. In cell I2, to the right of the pivot, I'll type DB gap, then the three gaps from my SQL comment in I3 to
+> I5, in the same order as the pivot: euros, pounds, dollars."
+> "In J2 I'll type Check, and in J3, equals ROUND of G3 minus I3, to two decimals. I round to cents because
+> spreadsheets store decimals in binary and can leave a tiny leftover like 0.0000000001. I'll select J3 to J5 and
+> press Command D to fill down."
+> "All three are **0**. The breaks explain the full gap in every currency, to the cent. Nothing is unexplained."
 
 ---
 
-## Step 6: summary, download, stop check
+## Step 6: summary, download, stop check (about 1.5 min)
 
-ACTION: click **A7** → `Summary` → Tab → B7: `100 affected orders; refunds EUR 4849.79 (30), GBP 2323.47 (18), USD 9942.11 (62)`.
-Before typing each currency's numbers, point at that row of the pivot (take 1: 47 seconds of a still cursor here).
+ACTION: click **A8** and type the summary. Before typing each count, point at that column in the pivot.
+```
+Summary: 87 breaks explain the full gap in EUR, GBP and USD. Raise 6 missing and 4 unknown with the processor, carry 60 timing items to tomorrow, claim back 12 fee overcharges.
+```
 SAY:
-> "Step 6. A one-line summary for operations. In cell A7 I'll type Summary, press Tab to move to B7, and type: 100
-> affected orders, and the refunds per currency with their counts."
+> "Step 6. A one-line summary for finance operations. In cell A8 I'll type the conclusion: 87 breaks explain the full
+> gap in all three currencies. Six missing captures and four unknown lines need a ticket with the processor. Sixty
+> timing items carry over to tomorrow. And twelve fee overcharges go back to the processor as a fee claim."
 
-ACTION (optional, 10 s): right-click the empty **Sheet1** tab at the bottom-left → **Delete**.
+ACTION: **File** (top-left) → hover **Download** → **Microsoft Excel (.xlsx)**. Then move to the **download arrow**
+in Chrome's toolbar at the top-right and click it.
 SAY:
-> "The first tab, Sheet1 at the bottom-left, is empty, so I'll right-click it and choose Delete. That leaves just the
-> refund list and the summary."
+> "To deliver it, I'll click the File menu at the top-left, hover over Download near the middle of the menu, and click
+> Microsoft Excel in the submenu on the right. A download arrow appears in Chrome's toolbar at the top-right. I'll
+> click it: it lists **settlement_reconciliation.xlsx**, saved to Downloads."
 
-ACTION: **File** (top-left) → hover **Download** → **Microsoft Excel (.xlsx)** → click the download arrow (top-right).
-SAY:
-> "To deliver it, I'll move up to the File menu at the top-left and click it, hover over Download near the middle of
-> the menu, and click Microsoft Excel in the submenu on the right. A download arrow appears in Chrome's toolbar at the
-> top-right. I'll click it: it lists **refund_summary.xlsx**, saved to Downloads."
-
-**STOP CHECK: don't start the epilogue until all three are true:**
-- the download list shows **refund_summary.xlsx**;
-- **duplicate_refunds.csv** was saved to payments-task in Step 4;
-- the SQL file was saved with ⌘S, so its tab title has no star.
+**STOP CHECK: don't start the epilogue until all three are true.**
+- The download list shows **settlement_reconciliation.xlsx**.
+- **settlement_breaks.csv** was saved to Downloads in Step 4.
+- The SQL file was saved with ⌘S, so its tab title had no star.
 
 SAY:
-> "Before I wrap up, I'll check the deliverables. The download list shows refund_summary.xlsx. duplicate_refunds.csv
-> and refund_investigation.sql are saved in the payments-task folder, and I saved the SQL file with Command S before I
-> left pgAdmin."
+> "Before I wrap up, I'll check the deliverables. The download list shows settlement_reconciliation.xlsx.
+> settlement_breaks.csv and reconciliation.sql are both in Downloads, and I saved the SQL file with Command S before
+> I left pgAdmin."
 
 ---
 
-## Epilogue (about 3 minutes, max 4:00; the mouse may rest, the sheet on screen)
+## Epilogue (about 3 to 3.5 min, max 4:00; the mouse may rest, the sheet stays on screen)
 
-SAY (in your own words; cover all six points):
+SAY in your own words, covering all five points. About 3 minutes at a calm pace:
 
-> **Completion.** "To wrap up: the task is complete. The refund list has 110 refunds for 100 orders: 4,849.79 euros,
-> 2,323.47 pounds and 9,942.11 dollars. I verified it two ways. In the database, every affected order keeps exactly one
-> capture. In the sheet, the totals per currency match the database to the cent. The limitations are that this is
-> synthetic data, and I haven't reconciled it with the payment processor's settlement report."
+> **Completion and outcome.** "To wrap up: the reconciliation is complete. The ledger and the settlement report
+> differed by 2,436.81 euros, 2,331.56 pounds and 6,146.90 dollars, and all of it is explained by 87 breaks. I
+> verified it two ways. In the database, no record is listed twice. In the sheet, the breaks in each currency add up
+> to the database gap exactly, to the cent. The limitation is that this is one synthetic day. In production, I'd also
+> compare the net payout with the actual bank deposit."
 
-> **Approach.** "My approach was to understand before fixing. I found the affected orders, then read one order's
-> attempts to see the cause, the new idempotency key on every retry, and only then wrote the refund rule."
+> **Approach and key decision.** "My approach was a FULL OUTER JOIN on the processor reference, so nothing on either
+> side could silently drop out. Then I gave every difference a type that tells someone what to do with it. The key
+> decision was the 22:00 cut-off. Sixty-six of our captures weren't in the report, but sixty of them were simply
+> after the cut-off and will settle tomorrow. If I'd raised all sixty-six with the processor, I'd have wasted their
+> time and ours. Only six are real."
 
-> **Challenges.** "The tricky part was the order of operations. If I had numbered every attempt before filtering out
-> failed ones, a failed first attempt would have taken number one, and the customer's only real payment would have
-> been refunded."
+> **Challenges.** "The tricky part was making sure each record lands in exactly one category. A record can be both
+> unmatched and suspicious, so the order of the checks in the CASE matters: missing sides first, then amounts, then
+> fees. The 87-equals-87 check proved there were no double counts. Fees were the other subtle point: the processor's
+> fee can differ from my formula by a rounding cent, so I only flag fees more than one cent over."
 
-> **Quality.** "I'm confident in the list because the check is separate from the query that built it, and the
-> spreadsheet matches the database. The weak spot is anything outside this table, such as a refund someone already
-> made by hand in the processor's dashboard."
+> **Quality.** "I'm confident in the result, because the tie-out in the sheet is independent of the query that built
+> the list. If I'd missed a break or counted one twice, the check column wouldn't be zero. The weak spots are things
+> this data doesn't have: same-day refunds, chargebacks and partial captures would each need their own break type."
 
-> **Next time.** "Next, I'd fix the retry code so it reuses the original idempotency key, add an alert when any order
-> gets two captures, and reconcile these refunds against the processor's report before sending them."
-
-> **Insight.** "The lesson for someone less experienced: find duplicates by the business key, here the order, not by
-> similar amounts. Filter before you number. And prove every customer pays exactly once before you refund anything."
+> **Reflection.** "With more time, I'd run this automatically every night, carry today's 60 timing items forward
+> and confirm they appear in tomorrow's report, and alert the team whenever a missing or unknown break shows up. For
+> someone less experienced, the lesson is: match on a shared reference rather than on amounts, keep currencies
+> separate, and don't trust a reconciliation until the breaks add up to the gap."
 
 SAY:
-> "That completes the task. I'll move the cursor to the Dock on the right and click TaskRecorder, just below pgAdmin, to
-> stop the recording."
+> "That completes the task. I'll move the cursor to the Dock on the right and click TaskRecorder, just below pgAdmin,
+> to stop the recording."
 
 ACTION: TaskRecorder → **Stop Recording**. Don't quit; wait for **Idle**.
 
 ---
 
 ## Bridge lines (use these instead of going silent)
-- While typing a long query, point at the line you just typed: *"This line, here, filters to captured payments; next I
-  group by order…"*
-- While the import runs: *"While that loads: the CSV has one row per refund, so the operations tool can process it
-  line by line."*
-- Before switching apps: *"I'll move to the Dock on the right and click {{Chrome / pgAdmin}} to {{build the summary /
-  check the numbers}}."*
+
+- **While typing a long query,** point at the line you just typed: *"This line takes the reference from whichever
+  side exists; next, the break type…"*
+- **While the import runs:** *"While that loads: the CSV has one row per break, so the operations team can work
+  through it line by line."*
+- **Before switching apps:** *"I'll move to the Dock on the right and click {{Chrome / pgAdmin}} to {{build the
+  reconciliation / check the numbers}}."*
 
 ## If something goes wrong (say it, fix it, check it)
-- Syntax error: *"The Messages tab says syntax error near …; I left out {{a comma / a bracket}}. I'll fix it on line …,
-  highlight the query and click Execute again… and now it works."*
-- **Nothing highlighted, so the whole file ran:** *"That ran the whole file instead of my selection."* If it says
-  `relation "refund_list" already exists`, say so, run `DROP TABLE refund_list;`, then rerun the CREATE TABLE on its
-  own.
-- The check returns rows: read them aloud, fix the list query, `DROP TABLE refund_list;`, recreate it and rerun the
-  check.
-- Typo in the sheet: *"In cell {{E3}} I typed {{…}}. I'll click it, retype it and press Return, and the difference in
-  column F updates."*
-- Anything personal, Studio or Slack on screen: **stop and re-record from the start.** Don't narrate over it.
+
+- **Syntax error:** *"The Messages tab says syntax error near …; I left out {{a comma / a bracket}}. I'll fix it on
+  line …, highlight the query and click Execute again… and now it works."*
+- **Nothing was highlighted, so the whole file ran:** *"That ran the whole file instead of my selection."* If it says
+  `relation "settlement_breaks" already exists`, say so. Run `DROP TABLE settlement_breaks;` (type it, triple-click,
+  Execute), then highlight the CREATE TABLE query and run it again.
+- **SELECT is not 87, or the check isn't 87 | 87:** read the number aloud. Find the typo in the query, `DROP TABLE
+  settlement_breaks;`, then recreate the table and rerun the check.
+- **A Check cell isn't 0:** click the I cell for that currency and compare it with your comment line. Retype it and
+  press Return. The check updates.
+- **The pivot shows COUNTA instead of SUM:** in the editor on the right, under Values, change Summarize by to SUM.
+- **Anything personal, Studio or Slack appears on screen:** stop and re-record from the start. Don't narrate over it.
+
+---
+
+## Numbers card (for your phone)
+
+| What | Value |
+|---|---|
+| Clean line example | PR-0000001: gross 248.44, fee 7.50 (= 2.9% + 0.30), net 240.94, USD |
+| Gap EUR | ledger 294708.65, settled 292271.84, **gap 2436.81** |
+| Gap GBP | ledger 181968.83, settled 179637.27, **gap 2331.56** |
+| Gap USD | ledger 725183.83, settled 719036.93, **gap 6146.90** |
+| CREATE TABLE | Messages: **SELECT 87** |
+| Duplicate check | **87 / 87** |
+| Breaks by type | amount mismatch 5, fee overcharge 12, missing 6, timing 60, unknown 4 |
+| Examples | mismatch PR-0000811 2.42 · fee PR-0000649 1.12 over · missing PR-0000505 193.99 (01:24) · unknown PR-9000001 −80.08 |
+| Pivot USD row | timing 6216.79 · missing 260.51 · unknown −332.82 · mismatch 2.42 · fee 0 · total 6146.90 |
+| Sheet | last row 88 · I3:I5 = 2436.81 / 2331.56 / 6146.90 · J3:J5 = 0 |
+| Fee overcharge to claim | EUR 2.60 · GBP 1.70 · USD 6.08 (total 12 lines) |
+
+## After recording
+
+1. Wait for **Idle** → **Show Recordings**. Copy the newest `recording_…` folder and its `.zip`, unchanged, into
+   `/Users/Shared/payments-task/`.
+2. Copy `reconciliation.sql`, `settlement_breaks.csv` and `settlement_reconciliation.xlsx` from Downloads into
+   `/Users/Shared/payments-task/` too.
+3. Tell me. I'll check the take (mouse, typing, silence, overlap, screen, files) and build Deliverables.zip.
