@@ -362,76 +362,326 @@ SAY:
 
 ## Step 5: Google Sheets: import, pivot, tie-out (about 4.5 min)
 
-ACTION: Dock → Chrome → the **settlement_reconciliation** tab.
-SAY:
+This part is broken into single actions. Each step says **where** the control is, **what** to do, and what you'll
+**see** afterwards. The positions come from your own screen in the payments take 2 recording, with Chrome on the
+left of the screen and the Dock on the right.
+
+**Before your practice run,** look at the finished layout in
+[reference/settlement_reconciliation-reference.xlsx](reference/settlement_reconciliation-reference.xlsx). Open it
+**only with Quick Look**: select it in Finder and press the space bar. Never open it in Google Sheets, because it's
+Claude-made and must never touch the task.
+
+### The Google Sheets window (learn this map once)
+```
++-------------------------------------------------------------------------------------------+
+| o o o  [Goal Document]  [settlement_reconciliation]                      <- Chrome tabs     |
+| <  >  C   docs.google.com/spreadsheets/...          star  (download)  profile  ...          |
+|                                                      ^ the download icon appears here,       |
+|                                                        after a download                     |
+| [green icon] settlement_reconciliation        clock  comments  camera  [Share]  (V)         |
+|              File Edit View Insert Format Data Tools Extensions Help    <- MENUS             |
+|  search undo redo print ... 100% ... B I ...                            <- toolbar           |
+| [A1 v] fx ......                         <- Name box (the cell you're in) + formula bar       |
+|        A      B      C      D      E      F      G      H      I      J   ...  <- COLUMNS  |
+|    1                                                                                        |
+|    2                                                                                        |
+|    3          <- ROW NUMBERS run down the left edge                                         |
+|   ...                                                                                       |
+| [+] [=]  Sheet1 v   settlement_breaks v   Pivot Table 1 v               <- SHEET TABS       |
++-------------------------------------------------------------------------------------------+
+```
+- **Menus:** File is the first word under the sheet title, at the top-left. Insert is the 4th menu.
+- **Cell address:** the column letter, then the row number. `I2` is column I, row 2, and `J3:J5` means J3, J4 and J5.
+- **Typing in a cell:** click the cell, type, then press **Return**. Return saves it and moves one cell **down**.
+- **Undo a slip:** press **⌘Z** and say "Command Z to undo".
+
+---
+
+### 5A. Open the blank sheet
+
+**5.1** WHERE: the Dock on the right edge of the screen.
+DO: move the cursor there and click **Chrome**, the red, yellow and green circle just above pgAdmin.
+SEE: Chrome comes to the front, showing the Goal Document.
+
+**5.2** WHERE: the tabs along the very top of the Chrome window.
+DO: click the **second tab**, `settlement_reconciliation`.
+SEE: an empty grid. At the bottom-left there's one sheet tab, **Sheet1**.
 > "Step 5. Now I'll build the reconciliation for the finance operations team in Google Sheets. I'll move right to the
 > Dock and click Chrome, the red, yellow and green circle just above pgAdmin. At the top of the window, I'll click the
 > second tab, settlement_reconciliation, my blank sheet."
 
-ACTION: **File** (top-left) → **Import** → **Upload** tab → blue **Browse** → **Downloads** in the sidebar →
-`settlement_breaks.csv` → **Open**. Import location: **Insert new sheet(s)**. Keep **Convert text to numbers**
-ticked → the green **Import data** button.
-SAY:
-> "I'll click the File menu at the top-left and choose Import. In the dialog, I'll click the Upload tab, then the blue
-> Browse button. In the Finder window I'll choose Downloads in the sidebar, then settlement_breaks.csv, and click
-> Open. For Import location I'll pick Insert new sheet, so the data gets its own tab. I'll keep Convert text to
-> numbers ticked so the differences become numbers. Then I'll click the green Import data button."
-> "A new tab, settlement_breaks, appears at the bottom-left. I'll scroll down: the last row is **88**, so 87 breaks
-> plus the header row, the same as the database."
+---
 
-ACTION: click **A1** → **Insert** → **Pivot table** → keep **New sheet** → **Create**. In the editor on the right:
-**Rows → Add → currency**, then **Columns → Add → break_type**, then **Values → Add → difference** (summarize by
-**SUM**).
-SAY:
-> "A pivot table groups and totals data without formulas. I'll click cell A1, then the Insert menu at the top, and
-> Pivot table. In the dialog I'll keep New sheet and click Create."
-> "The pivot table editor opens on the right side. Next to Rows I'll click Add and choose currency. Next to Columns
-> I'll click Add and choose break_type. Next to Values I'll click Add and choose difference, summarized by SUM."
+### 5B. Import the CSV (two small windows)
 
-EXPECT: currencies down the side (EUR, GBP, USD in rows 3 to 5), the five break types across the top, and a
-**Grand Total** column, normally **G**. Point along each row as you speak.
-SAY:
-> "Each cell is the money in one kind of break in one currency. In dollars, for example, timing is **6,216.79**,
-> missing is **260.51**, and unknown is **−332.82**, negative because that's money the processor paid that our ledger
+**5.3** WHERE: top-left, the first menu word under the sheet title.
+DO: click **File**.
+SEE: a long menu drops down: New, Open, **Import**, Make a copy, Share, Email, Download, and more.
+
+**5.4** WHERE: the 3rd item in that menu.
+DO: click **Import**.
+SEE: a large **Import file** window in the middle of the screen. It opens on the **My Drive** tab, which may list old
+files. **Ignore them.**
+```
++-- Import file --------------------------------------------- [X] -+
+|  [ Search in Drive or paste URL ]                                  |
+|  My Drive    Shared with me    Recent    Upload   <- 4 tabs        |
+|  ...files...                                                       |
++--------------------------------------------------------------------+
+```
+
+**5.5** WHERE: the row of four tabs near the top of that window. **Upload** is the 4th tab, the one furthest right.
+DO: click **Upload**.
+SEE: a dashed box with a cloud picture and a blue **Browse** button in the middle.
+
+**5.6** WHERE: the middle of the dashed box.
+DO: click the blue **Browse** button.
+SEE: a Finder window.
+
+**5.7** WHERE: the left sidebar of the Finder window.
+DO: click **Downloads**.
+
+**5.8** WHERE: the file list in the middle of the Finder window.
+DO: click **settlement_breaks.csv** once, then click the **Open** button at the bottom-right of the Finder window.
+SEE: Finder closes and a **smaller** Import file window appears in the middle of the screen:
+```
++-- Import file ------------------------------------- [X] -+
+|  File:  settlement_breaks.csv                            |
+|  Import location              Separator type             |
+|  [ Create new spreadsheet v ]  [ Detect automatically v ] |
+|  [x] Convert text to numbers, dates, and formulas        |
+|                           [ Import data ]  [ Cancel ]    |
++----------------------------------------------------------+
+```
+
+**5.9** WHERE: the **left** box, under the words **Import location**. It says **Create new spreadsheet** by default.
+DO: click that box.
+SEE: a list of six options: Create new spreadsheet, **Insert new sheet(s)**, Replace spreadsheet, Replace current
+sheet, Append to current sheet, Replace data at selected cell.
+
+**5.10** WHERE: the 2nd option in that list.
+DO: click **Insert new sheet(s)**.
+SEE: the left box now says **Insert new sheet(s)**. This step matters: the default would make a separate
+spreadsheet.
+
+**5.11** WHERE: the right box (Separator type) and the checkbox below both boxes.
+DO: nothing. Just check that the right box says **Detect automatically** and the checkbox **Convert text to numbers,
+dates, and formulas** has a green tick.
+> "I'll click the File menu at the top-left and choose Import. In the window, I'll click the Upload tab, the fourth
+> tab on the right, then the blue Browse button. In Finder I'll choose Downloads in the sidebar, then
+> settlement_breaks.csv, and click Open. For Import location I'll change Create new spreadsheet to Insert new sheet,
+> so the data gets its own tab in this file. I'll keep Convert text to numbers ticked, so the differences become real
+> numbers I can add up."
+
+**5.12** WHERE: the bottom-right of the small window. The green button is left of Cancel.
+DO: click the green **Import data** button.
+SEE: after 2 or 3 seconds, a new sheet tab **settlement_breaks** at the bottom-left, already open. Columns A to E hold
+processor_ref, currency, break_type, difference and fee_over.
+> "While that loads: the file has one row per break, so the operations team can work through it line by line."
+
+**5.13** WHERE: the bottom-middle of the sheet, where a small pop-up appears saying **Convert to table**.
+DO: **don't click "Convert to table".** Click the small **x** at the right end of that pop-up to close it, or just
+leave it alone.
+
+**5.14** WHERE: anywhere over the grid.
+DO: scroll down with the trackpad (two fingers) until you reach the last row. Point at its row number on the left
+edge: **88**. Then scroll back up to the top.
+> "A new tab, settlement_breaks, appears at the bottom-left. I'll scroll down: the last row is 88, so 87 breaks plus
+> the header row, the same as the database."
+
+---
+
+### 5C. Build the pivot table
+
+**5.15** WHERE: the top-left cell of the grid, column A row 1. It says **processor_ref**.
+DO: click cell **A1**.
+SEE: a blue outline around A1, and the Name box at the far left of the formula bar shows **A1**.
+
+**5.16** WHERE: the menus at the top. **Insert** is the 4th menu: File, Edit, View, **Insert**.
+DO: click **Insert**.
+SEE: a menu: Cells, Rows, Columns, Sheet, Pre-built tables, Timeline, Chart, **Pivot table**, Image, and more.
+
+**5.17** WHERE: the middle of that menu, just below **Chart**.
+DO: click **Pivot table**.
+SEE: a small **Create pivot table** window, a little right of the middle of the screen:
+```
++-- Create pivot table ------------ [X] -+
+|  Data range                            |
+|  settlement_breaks!A1:E88         [#]  |
+|  Insert to                             |
+|  (o) New sheet                         |
+|  ( ) Existing sheet                    |
+|                  [ Cancel ] [ Create ] |
++----------------------------------------+
+```
+
+**5.18** WHERE: inside that small window.
+DO: check that **Data range** says `settlement_breaks!A1:E88` and that **New sheet** has the filled circle. Don't
+change anything.
+
+**5.19** WHERE: the bottom-right of the small window. The green button is right of Cancel.
+DO: click the green **Create** button.
+SEE:
+- A new sheet tab, **Pivot Table 1**, at the bottom-left.
+- On the left, an empty pivot with the grey words Rows, Columns and Values.
+- On the right, the **Pivot table editor** panel:
+```
++-- Pivot table editor ---------------------------------- [X] -+  <- X = close the panel
+|  [ settlement_breaks!A1:E88 ]       |  Search               |
+|                       [Clear all]   |  processor_ref        |
+|  Suggested    (ignore these)        |  currency             |  <- a list of the column
+|   ( ) Sum of difference for each... |  break_type           |     names; don't drag from
+|  Rows                     [ Add ]   |  difference           |     it, use the Add buttons
+|  Columns                  [ Add ]   |  fee_over             |
+|  Values                   [ Add ]   |                       |
+|  Filters                  [ Add ]   |                       |
++--------------------------------------------------------------+
+```
+> "A pivot table groups and totals data without formulas. I clicked cell A1, then the Insert menu at the top, and
+> Pivot table. The data range is the whole settlement_breaks tab, and I'll keep New sheet and click the green Create
+> button. The pivot table editor opens on the right side."
+
+**5.20** WHERE: in the editor, the line that says **Rows**, with a green-outlined **Add** button at its right end.
+DO: click that **Add** button.
+SEE: a small list drops down under it, with a search box at the top and the five column names below.
+
+**5.21** WHERE: in that small list.
+DO: click **currency**.
+SEE: EUR, GBP and USD appear down column A, plus a Grand Total row. In the editor, a grey card named **currency**
+appears under Rows, showing Order, Sort by and Show totals. **Leave those as they are.**
+> "Next to Rows, I'll click the green Add button and choose currency, so each currency gets its own row."
+
+**5.22** WHERE: in the editor, the line that says **Columns**, now a little lower because the currency card pushed
+it down. **Add** is at its right end.
+DO: click that **Add** button.
+
+**5.23** WHERE: in the small list that drops down.
+DO: click **break_type**.
+SEE: the five break types appear across the top of the pivot, and a **break_type** card appears under Columns.
+**Leave it as it is.**
+> "Next to Columns, I'll click Add and choose break_type, so each kind of break gets its own column."
+
+**5.24** WHERE: in the editor, the line that says **Values**, below the Columns card. **Add** is at its right end.
+DO: click that **Add** button.
+SEE: a list whose first item is **Calculated Field**, followed by the five column names. **Don't** click Calculated
+Field.
+
+**5.25** WHERE: in that list.
+DO: click **difference**.
+SEE: numbers fill the pivot. A **difference** card appears under Values, with **Summarize by: SUM**.
+
+**5.26** WHERE: the difference card under Values, at its left: the box under **Summarize by**.
+DO: check that it says **SUM**. If it says anything else, such as COUNTA, click the box and choose **SUM**.
+> "Next to Values, I'll click Add and choose difference. Summarize by says SUM, so each cell adds up the money."
+
+**5.27** WHERE: the pivot on the left of the screen. Compare it with the reference file:
+```
+        A                  B                 C               D         E          F          G
+  1   SUM of difference  break_type
+  2   currency           amount mismatch   fee overcharge  missing   timing     unknown    Grand Total
+  3   EUR                4.59              0               341.08    2231.22    -140.08    2436.81
+  4   GBP                6.67              0               425.01    1948.83    -48.95     2331.56
+  5   USD                2.42              0               260.51    6216.79    -332.82    6146.9
+  6   Grand Total        13.68             0               1026.6    10396.84   -521.85    10915.27
+```
+DO: point along the USD row, then up at **Grand Total** in **G2**.
+**If Grand Total isn't in column G,** use the letter where it is in step 5.33.
+> "Each cell is the money in one kind of break in one currency. In dollars, for example, timing is 6,216.79,
+> missing is 260.51, and unknown is −332.82, negative because that's money the processor paid that our ledger
 > doesn't have. The fee overcharge column is zero, because a fee doesn't change the gross amount. The Grand Total
-> column on the right adds up each currency's breaks."
+> column on the right adds up each currency's breaks. I'll ignore the Grand Total row at the bottom, because it adds
+> three currencies together."
 
-ACTION:
-1. Click **I2** → type `DB gap`.
-2. In **I3, I4 and I5**, type `2436.81`, `2331.56` and `6146.90` (EUR, GBP, USD, the same order as the pivot).
-3. Click **J2** → type `Check`.
-4. Click **J3** → type `=ROUND(G3-I3,2)` → Return.
-5. Select **J3:J5** → **⌘D**.
+**5.28** WHERE: the top-right corner of the **Pivot table editor** panel, the **X** on the same line as its title.
+DO: click the **X**.
+SEE: the panel closes and the grid fills the window. Columns **I** and **J** are now visible. They were hidden under
+the panel.
+> "I'll close the pivot table editor with the X at its top-right, so I can use the columns to the right of the
+> pivot."
 
-(If the Grand Total isn't in column G, use the letter where it is.)
-SAY:
+*If the panel opens again later, because you clicked inside the pivot, close it again with the same X.*
+
+---
+
+### 5D. The tie-out: is every cent explained?
+
+**5.29** WHERE: column **I**, row **2**, one empty column to the right of Grand Total.
+DO: click cell **I2**, type `DB gap` and press **Return**.
+SEE: I2 says DB gap, and the blue outline jumps down to **I3**.
+
+**5.30** WHERE: you're in I3 now.
+DO: type `2436.81` and press **Return**. Type `2331.56` and press **Return**. Type `6146.90` and press **Return**.
+SEE: I3, I4 and I5 hold the three gaps, on the same rows as EUR, GBP and USD. Sheets may show 6146.9, which is fine.
 > "Now the tie-out. If my breaks explain everything, each currency's Grand Total must equal the gap I measured in the
 > database. In cell I2, to the right of the pivot, I'll type DB gap, then the three gaps from my SQL comment in I3 to
 > I5, in the same order as the pivot: euros, pounds, dollars."
-> "In J2 I'll type Check, and in J3, equals ROUND of G3 minus I3, to two decimals. I round to cents because
-> spreadsheets store decimals in binary and can leave a tiny leftover like 0.0000000001. I'll select J3 to J5 and
-> press Command D to fill down."
-> "All three are **0**. The breaks explain the full gap in every currency, to the cent. Nothing is unexplained."
+
+**5.31** WHERE: column **J**, row **2**, just right of I2.
+DO: click cell **J2**, type `Check` and press **Return**.
+SEE: the outline jumps down to **J3**.
+
+**5.32** WHERE: you're in J3 now.
+DO: type `=ROUND(G3-I3,2)` exactly. It starts with an equals sign and has no spaces. A small grey help box about
+ROUND pops up while you type; ignore it.
+
+**5.33** DO: press **Return**.
+SEE: **J3 shows 0**.
+> "In J2 I'll type Check, and in J3, equals ROUND of G3 minus I3, to two decimals. That's the pivot's total minus the
+> database gap for euros. I round to cents because spreadsheets store decimals in binary and can leave a tiny leftover
+> like 0.0000000001."
+
+**5.34** WHERE: cell J3.
+DO: click **J3**. Hold **Shift** and click **J5**.
+SEE: a blue box around J3, J4 and J5.
+
+**5.35** DO: hold **Command** and press **D**, and say "Command D to fill down".
+SEE: **J4 and J5 also show 0.**
+> "I'll select J3 to J5 and press Command D to fill the formula down to the other two currencies."
+
+**5.36** DO: point at each 0 in turn.
+> "All three are 0. The breaks explain the full gap in every currency, to the cent. Nothing is unexplained."
+
+**Don'ts in Sheets:**
+- **Don't type inside the pivot** (A1 to G6). Sheets won't let you change pivot cells.
+- **Don't click the Suggested options** in the editor, or Convert to table.
+- **Don't sort, drag or move columns.**
+- **If you typed in the wrong cell,** press **⌘Z** (say "Command Z to undo"), then click the right cell.
 
 ---
 
 ## Step 6: summary, download, stop check (about 1.5 min)
 
-ACTION: click **A8** and type the summary. Before typing each count, point at that column in the pivot.
+**6.1** WHERE: column **A**, row **8**, two empty rows below the pivot's Grand Total row.
+DO: click cell **A8**. Type the line below, pointing at the pivot before each number, then press **Return**.
 ```
 Summary: 87 breaks explain the full gap in EUR, GBP and USD. Raise 6 missing and 4 unknown with the processor, carry 60 timing items to tomorrow, claim back 12 fee overcharges.
 ```
-SAY:
+SEE: the text runs across the empty cells to the right of A8. That's normal; it's all in A8.
 > "Step 6. A one-line summary for finance operations. In cell A8 I'll type the conclusion: 87 breaks explain the full
 > gap in all three currencies. Six missing captures and four unknown lines need a ticket with the processor. Sixty
 > timing items carry over to tomorrow. And twelve fee overcharges go back to the processor as a fee claim."
 
-ACTION: **File** (top-left) → hover **Download** → **Microsoft Excel (.xlsx)**. Then move to the **download arrow**
-in Chrome's toolbar at the top-right and click it.
-SAY:
-> "To deliver it, I'll click the File menu at the top-left, hover over Download near the middle of the menu, and click
-> Microsoft Excel in the submenu on the right. A download arrow appears in Chrome's toolbar at the top-right. I'll
-> click it: it lists **settlement_reconciliation.xlsx**, saved to Downloads."
+**6.2** WHERE: top-left, the first menu word under the sheet title.
+DO: click **File**.
+
+**6.3** WHERE: the 7th item in the File menu, **Download**. It has a small arrow at its right end.
+DO: move the cursor onto **Download** and rest it there. Don't click.
+SEE: a second menu opens to the right: Microsoft Excel (.xlsx), OpenDocument (.ods), PDF, and more.
+
+**6.4** WHERE: the first item of that second menu.
+DO: move the cursor straight right into it and click **Microsoft Excel (.xlsx)**.
+
+**6.5** WHERE: Chrome's toolbar at the top-right, next to the address bar. A **download icon**, a down arrow, appears
+between the star and the profile icon. A small list may open under it by itself for a few seconds.
+DO: move the cursor up to the download icon and click it.
+SEE: the list shows **settlement_reconciliation.xlsx**. Point at it. Then click an empty cell in the sheet to close
+the list.
+> "To deliver it, I'll click the File menu at the top-left, rest on Download near the middle of the menu, and click
+> Microsoft Excel in the submenu on the right. A download icon appears in Chrome's toolbar at the top-right. I'll
+> click it: it lists settlement_reconciliation.xlsx, saved to Downloads."
+
+**6.6** WHERE: the sheet tabs at the bottom-left.
+DO: make sure **Pivot Table 1** is the open tab, so the result stays on screen during the epilogue.
 
 **STOP CHECK: don't start the epilogue until all three are true.**
 - The download list shows **settlement_reconciliation.xlsx**.
@@ -504,6 +754,10 @@ ACTION: TaskRecorder → **Stop Recording**. Don't quit; wait for **Idle**.
 - **A Check cell isn't 0:** click the I cell for that currency and compare it with your comment line. Retype it and
   press Return. The check updates.
 - **The pivot shows COUNTA instead of SUM:** in the editor on the right, under Values, change Summarize by to SUM.
+- **The import made a separate spreadsheet** (Import location was left on Create new spreadsheet): say *"That
+  created a separate file; I wanted a new tab in this one."* Close that browser tab, go back to the
+  settlement_reconciliation tab and import again from step 5.3, choosing Insert new sheet(s).
+- **The pivot editor disappeared before you finished:** click any cell inside the pivot (A1 to G6) and it comes back.
 - **Anything personal, Studio or Slack appears on screen:** stop and re-record from the start. Don't narrate over it.
 
 ---
